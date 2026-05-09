@@ -10,8 +10,8 @@ class UsersRepository:
                 INSERT INTO utilisateurs (nom_utilisateur, email, date_inscription, niveau, nombre_points)
                 VALUES (%s, %s, %s, %s, %s)
                 ON CONFLICT (nom_utilisateur) DO NOTHING;
-                -- si le nom existe déjà, on ne fait rien (pas d'erreur)
-            """, (u["nom_utilisateur"], u["email"], u["date_inscription"], u["niveau"], u["nombre_points"]))
+                -- si le nom existe déjà, on ne fait rien (pas d'erreur)""", 
+                (u["nom_utilisateur"], u["email"], u["date_inscription"], u["niveau"], u["nombre_points"]))
             
         conn.commit()   # valide toutes les insertions
         cur.close()    # ferme le curseur

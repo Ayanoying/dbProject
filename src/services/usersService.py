@@ -27,7 +27,7 @@ class UsersService:
             print("Utilisateur introuvable.")
             return
         print(f"""
-        --- Profil de {user[1]} ---
+         Profil de {user[1]} :
         Email        : {user[2]}
         Inscription  : {user[3]}
         Niveau       : {user[4]}    
@@ -45,10 +45,10 @@ class UsersService:
             print("Utilisateur introuvable.")
             return
         print(f"""
-            Profil de {user[1]}   user[1] = nom_utilisateur
-            Email        : {user[2]}      # user[2] = email
-            Inscription  : {user[3]}      # user[3] = date_inscription
-            Niveau       : {user[4]}      # user[4] = niveau
-            Points       : {user[5]}      # user[5] = nombre_points """)
+            Profil de {user[1]}   
+            Email        : {user[2]}     
+            Inscription  : {user[3]}     
+            Niveau       : {user[4]}      
+            Points       : {user[5]}   """)
 
 # contient la logique métier, vérifie les règles 

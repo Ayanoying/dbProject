@@ -40,25 +40,11 @@ INSERT INTO resumes (titre, description, date_publication, version, visibilite, 
 SELECT 'Introduction aux bases de données', 'Résumé complet du cours', '2025-10-01', 1, TRUE, 4.5, id_utilisateur, 'INFOH303'
 FROM utilisateurs WHERE nom_utilisateur = 'alice_dupont';
 
-INSERT INTO resumes (titre, description, date_publication, version, visibilite, note_moyenne, id_utilisateur, code_cours)
-SELECT 'Mathématiques discrètes - résumé complet', 'Synthèse complète', '2025-09-25', 1, TRUE, 4.8,id_utilisateur, 'MATH100'
-FROM utilisateurs WHERE nom_utilisateur = 'camille_leroy';
-
 -- Insertion des évaluations
 INSERT INTO evaluations (note, commentaire, date_evaluation, id_auteur, id_resume)
 SELECT 5, 'Très clair !', '2025-10-05',
        (SELECT id_utilisateur FROM utilisateurs WHERE nom_utilisateur = 'benoit_martin'),
        (SELECT id_resume FROM resumes WHERE titre = 'Introduction aux bases de données');
-
-INSERT INTO evaluations (note, commentaire, date_evaluation, id_auteur, id_resume)
-SELECT 4, 'Bon résumé', '2025-10-06',
-       (SELECT id_utilisateur FROM utilisateurs WHERE nom_utilisateur = 'camille_leroy'),
-       (SELECT id_resume FROM resumes WHERE titre = 'Introduction aux bases de données');
-
-INSERT INTO evaluations (note, commentaire, date_evaluation, id_auteur, id_resume)
-SELECT 5, 'Exceptionnel, merci !', '2025-10-07',
-       (SELECT id_utilisateur FROM utilisateurs WHERE nom_utilisateur = 'david_nguyen'),
-       (SELECT id_resume FROM resumes WHERE titre = 'Mathématiques discrètes - résumé complet');
 
 -- Insertion des transactions de points
 -- Type 'publication' : points gagnés en publiant un résumé
@@ -66,25 +52,6 @@ INSERT INTO transactions (type, montant, id_utilisateur)
 SELECT 'publication', 100, id_utilisateur
 FROM utilisateurs WHERE nom_utilisateur = 'alice_dupont';
 
-INSERT INTO transactions (type, montant, id_utilisateur)
-SELECT 'publication', 100, id_utilisateur
-FROM utilisateurs WHERE nom_utilisateur = 'camille_leroy';
-
--- Type 'evaluation' : points gagnés en recevant une bonne évaluation
-INSERT INTO transactions (type, montant, id_utilisateur, id_evaluation)
-SELECT 'evaluation', 50, 
-       (SELECT id_utilisateur FROM utilisateurs WHERE nom_utilisateur = 'alice_dupont'),
-       (SELECT id_evaluation FROM evaluations LIMIT 1);
-
-
--- Insertion dans l'inventaire (alice a acheté 'Top Contributeur')
-INSERT INTO inventaire_objets (id_utilisateur, id_objet, date_achat, actif)
-SELECT 
-    (SELECT id_utilisateur FROM utilisateurs WHERE nom_utilisateur = 'alice_dupont'),
-    (SELECT id_objet FROM objets_cosmetiques WHERE nom = 'Top Contributeur'),
-    '2025-10-10',
-    TRUE
-ON CONFLICT DO NOTHING;
 
 
 -- fichier qu'on lance une seule fois avec la commande psql pour pré-remplir la base avant même de lancer l'appli
