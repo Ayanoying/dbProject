@@ -120,7 +120,7 @@ def menu_resumes(service):
             service.supprimer(nom, id_r)
         elif choix == "0":
             break
-
+1
 def main():
     users_service   = UsersService()
     courses_service = CoursesService()
