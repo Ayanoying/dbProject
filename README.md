@@ -75,7 +75,7 @@ python3 src/main.py
 
 Pour repartir de zéro, vous pouvez utiliser :
 ```bash
-./reset_db.sh
+psql -h localhost -U appuser -d h303database -f res/schema/schema.sql
 ```
 
 Après une réinitialisation, il faut relancer l’application puis recharger les données initiales via le menu.

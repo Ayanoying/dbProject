@@ -1,12 +1,15 @@
 from repositories.resumesRepository import ResumesRepository
 from repositories.usersRepository import UsersRepository
 from repositories.coursesRepository import CoursesRepository
+from repositories.pointsRepository import PointsRepository
+import datetime
 
 class ResumesService: 
     def __init__(self): # créer 3 instances de repositories 
         self.repo = ResumesRepository()
         self.users_repo = UsersRepository() # pour vérifier sir le nom existe 
         self.course_repo = CoursesRepository() # pour verifier que le code cours est valide 
+        self.points_repo = PointsRepository()
 
     def publier(self, nom_utilisateur, code_cours, titre, description):
         user = self.users_repo.find_by_username(nom_utilisateur) # vérifier que le user existe 
@@ -22,6 +25,7 @@ class ResumesService:
         
         id_utilisateur = user[0]
         id_resume = self.repo.publish(titre, description, id_utilisateur, code_cours)
+        points = self.points_repo.ajouter_transaction('publication',+50, id_utilisateur, id_resume)
         print(f"Résumé publié avec succès ! (id: {id_resume})")
         return id_resume
 

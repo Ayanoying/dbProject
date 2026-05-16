@@ -4,6 +4,47 @@ from dbConnection import get_connection
 
 class ResumesRepository:
 
+    def save_many(self, resumes):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        for r in resumes:
+            cur.execute("""
+                SELECT id_utilisateur
+                FROM utilisateurs
+                WHERE nom_utilisateur = %s;
+            """, (r["auteur"],))
+            user_row = cur.fetchone()
+
+            if user_row is None:
+                continue
+            cur.execute("""
+                SELECT 1
+                FROM courses
+                WHERE code_cours = %s;
+            """, (r["cours"],))
+            course_exists = cur.fetchone()
+
+            if course_exists is None:
+                print(f"Cours inexistant ignoré : {r['cours']} pour le résumé '{r['titre']}'")
+                continue
+
+            cur.execute("""
+                INSERT INTO resumes (titre, date_publication, note_moyenne, id_utilisateur, code_cours)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (id_utilisateur, code_cours, titre) DO NOTHING 
+                """, ( # ON CONFLICT DO NOTHING pour ne pas ajoute rles doublons
+                r["titre"],
+                r["date_publication"],
+                r["note_moyenne"],
+                user_row[0],
+                r["cours"]
+            ))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
     def publish(self, titre, description, id_utilisateur, code_cours): # Insère un nouveau résumé.
         conn = get_connection()
         cur = conn.cursor()

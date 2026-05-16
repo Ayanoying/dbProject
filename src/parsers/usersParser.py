@@ -15,7 +15,7 @@ class UsersParser:
                 "email":           u.findtext('email'),           # lit le texte de 'email'
                 "date_inscription":u.findtext('dateInscription'), # lit la date d'inscription
                 "niveau": int(u.findtext('niveau') or 1),    # converti en entier, 1 par défaut
-                "nombre_points": int(u.findtext('nombre_points') or 0)        # converti en entier, 0 par défaut
+                "nombre_points": int(u.findtext('points') or 0)        # converti en entier, 0 par défaut
             })
         return users  # retourne la liste de dictionnaires
 

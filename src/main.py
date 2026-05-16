@@ -3,29 +3,36 @@ import os
 from parsers.coursesParser import CoursesParser
 from parsers.evaluationsParser import EvaluationsParser
 from parsers.usersParser import UsersParser
+from parsers.resumesParser import ResumesParser
 from repositories.coursesRepository import CoursesRepository
 from repositories.evaluationsRepository import EvaluationsRepository
 from repositories.usersRepository import UsersRepository
+from repositories.resumesRepository import ResumesRepository
 from services.usersService import UsersService
 from services.coursesService import CoursesService
 from services.resumesService import ResumesService
+
 
 BASE_DATA = os.path.join(os.path.dirname(__file__), "..", "res", "data")
 
 def charger_donnees():
     # Parsers
     courses_parser     = CoursesParser(os.path.join(BASE_DATA, "cours.csv"))
-    evaluations_parser = EvaluationsParser(os.path.join(BASE_DATA, "commentaires.json"))
     users_parser       = UsersParser(os.path.join(BASE_DATA, "utilisateurs.xml"))
+    resumes_parser     = ResumesParser(os.path.join(BASE_DATA, "utilisateurs.xml"))
+    evaluations_parser = EvaluationsParser(os.path.join(BASE_DATA, "commentaires.json"))
+  
 
     # Repositories
     course_repo = CoursesRepository()
-    eval_repo   = EvaluationsRepository()
     users_repo  = UsersRepository()
+    resumes_repo = ResumesRepository()
+    eval_repo   = EvaluationsRepository()
 
     # Insertion dans la base
     course_repo.save_many(courses_parser.get_courses())
     users_repo.save_many(users_parser.get_users())
+    resumes_repo.save_many(resumes_parser.get_resumes())
     eval_repo.save_many(evaluations_parser.get_evaluations())
 
     print("Données chargées avec succès.")
@@ -37,6 +44,7 @@ def menu_utilisateurs(service):
         print("1. S'inscrire")
         print("2. Se connecter")
         print("3. Voir un profil")
+        print("4. Voir l'historique des points")
         print("0. Retour")
         choix = input("Votre choix : ")
 
@@ -50,6 +58,9 @@ def menu_utilisateurs(service):
         elif choix == "3":
             nom = input("Nom d'utilisateur : ")
             service.voir_profil(nom)
+        elif choix == "4":
+            nom = input("Nom d'utilisateur : ")
+            service.voir_historique_points(nom)
         elif choix == "0":
             break
 

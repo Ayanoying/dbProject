@@ -47,7 +47,8 @@ CREATE TABLE resumes (
     visibilite       BOOLEAN NOT NULL DEFAULT TRUE,
     note_moyenne     NUMERIC(3,2) CHECK (note_moyenne >= 0 AND note_moyenne <= 5),
     id_utilisateur   INT     NOT NULL REFERENCES utilisateurs(id_utilisateur) ON DELETE CASCADE,
-    code_cours       TEXT    NOT NULL REFERENCES courses(code_cours)
+    code_cours       TEXT    NOT NULL REFERENCES courses(code_cours),
+    CONSTRAINT unique_resume UNIQUE (id_utilisateur, code_cours, titre)
 );
 
 CREATE TABLE evaluations (
@@ -63,10 +64,11 @@ CREATE TABLE evaluations (
 
 CREATE TABLE transactions (
     id_transaction   SERIAL PRIMARY KEY,
-    type             TEXT      NOT NULL CHECK (type IN ('publication', 'evaluation', 'achat')),
+    type_transaction TEXT      NOT NULL CHECK (type_transaction IN ('publication', 'evaluation', 'achat')),
     date_transaction TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     montant          INT       NOT NULL,
     id_utilisateur   INT       NOT NULL REFERENCES utilisateurs(id_utilisateur),
+    id_resume        INT       REFERENCES resumes(id_resume),
     id_evaluation    INT       REFERENCES evaluations(id_evaluation),
     id_objet         INT       REFERENCES objets_cosmetiques(id_objet)
 );

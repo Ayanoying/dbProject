@@ -1533,7 +1533,7 @@
                 <noteMoyenne>4.8</noteMoyenne>
             </resume>
             <resume>
-                <cours>INOH307</cours>
+                <cours>INFOH307</cours>
                 <titre>Programmation concurrente - deadlocks</titre>
                 <datePublication>2025-11-19</datePublication>
                 <noteMoyenne>4.9</noteMoyenne>
@@ -1609,7 +1609,7 @@
                 <noteMoyenne>4.4</noteMoyenne>
             </resume>
             <resume>
-                <cours>PHYS20</cours>
+                <cours>PHYS200</cours>
                 <titre>Optique - interférences et diffraction</titre>
                 <datePublication>2025-11-17</datePublication>
                 <noteMoyenne>4.3</noteMoyenne>

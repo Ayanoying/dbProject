@@ -44,4 +44,17 @@ class UsersRepository:
         conn.close()
         return row  # retourne un tuple (id, nom, email, date, niveau, points) ou None
     
+    def find_by_email(self, email):  # cherche un utilisateur par son nom
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id_utilisateur, nom_utilisateur, email, date_inscription, niveau, nombre_points
+            FROM utilisateurs
+            WHERE email = %s;  -- filtre sur le nom exact """, (email,))
+        
+        row = cur.fetchone()  # récupère une seule ligne (ou None si pas trouvé)
+        cur.close()
+        conn.close()
+        return row  # retourne un tuple (id, nom, email, date, niveau, points) ou None
+    
 #liaison à la base de données SQL 
