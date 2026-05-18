@@ -14,21 +14,21 @@ class EvaluationsRepository:
             if row is None:
                 continue
 
-            id_resume = row[0]
+            summary_id = row[0]
 
             cur.execute("""
                 SELECT id_utilisateur FROM utilisateurs
                 WHERE nom_utilisateur = %s;
             """, (e["auteur"],))
-            auteur_row = cur.fetchone()
-            if auteur_row is None:
+            author_row = cur.fetchone()
+            if author_row is None:
                 continue
 
             cur.execute("""
                 INSERT INTO evaluations (note, commentaire, id_auteur, id_resume)
                 VALUES (%s, %s, %s, %s)
                 ON CONFLICT (id_auteur, id_resume) DO NOTHING;
-            """, (e["note"], e["commentaire"], auteur_row[0], id_resume))
+            """, (e["note"], e["commentaire"], author_row[0], summary_id))
 
         conn.commit()
         cur.close()

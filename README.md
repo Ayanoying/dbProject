@@ -20,6 +20,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install psycopg2
 pip install pandas
+pip install PyQt6
 ```
 
 ## Configuration PostgreSQL (à faire une seule fois)

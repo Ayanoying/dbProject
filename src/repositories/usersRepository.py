@@ -17,13 +17,13 @@ class UsersRepository:
         cur.close()    # ferme le curseur
         conn.close()   # ferme la connexion
 
-    def register(self, nom_utilisateur, email):  # inscription d'un nouveau user via l'appli
+    def register(self, username, email):  # inscription d'un nouveau user via l'appli
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO utilisateurs (nom_utilisateur, email)
             VALUES (%s, %s)
-            RETURNING id_utilisateur;  -- PostgreSQL retourne l'id qu'il vient de générer """, (nom_utilisateur, email))
+            RETURNING id_utilisateur;  -- PostgreSQL retourne l'id qu'il vient de générer """, (username, email))
         
         user_id = cur.fetchone()[0]  # on récupère cet id généré automatiquement
         conn.commit()
@@ -31,13 +31,13 @@ class UsersRepository:
         conn.close()
         return user_id  # on le retourne pour pouvoir l'utiliser ensuite
 
-    def find_by_username(self, nom_utilisateur):  # cherche un utilisateur par son nom
+    def find_by_username(self, username):  # cherche un utilisateur par son nom
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
             SELECT id_utilisateur, nom_utilisateur, email, date_inscription, niveau, nombre_points
             FROM utilisateurs
-            WHERE nom_utilisateur = %s;  -- filtre sur le nom exact """, (nom_utilisateur,))
+            WHERE nom_utilisateur = %s;  -- filtre sur le nom exact """, (username,))
         
         row = cur.fetchone()  # récupère une seule ligne (ou None si pas trouvé)
         cur.close()
