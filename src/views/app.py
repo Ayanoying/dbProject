@@ -4,7 +4,6 @@ from views.connectionView import ConnectionView
 
 
 class App:
-
     def __init__(self):
         self.app = QApplication(sys.argv)
         self.window = ConnectionView()
@@ -12,7 +11,7 @@ class App:
     def run(self):
         self.window.show()
         sys.exit(self.app.exec())
-        
+
 
 def launch_app():
     app = App()

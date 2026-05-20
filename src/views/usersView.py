@@ -1,15 +1,11 @@
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout,
-    QPushButton, QMessageBox
-)
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QMessageBox
 
 from services.usersService import UsersService
 from session import Session
 
 
 class UsersView(QWidget):
-
-    def __init__(self, main_window =None):
+    def __init__(self, main_window=None):
         super().__init__()
         self.main_window = main_window
         self.service = UsersService()
@@ -41,12 +37,12 @@ class UsersView(QWidget):
             self,
             "Profil",
             f"""
-            Nom : {profile['username']}
-            Email : {profile['email']}
-            Inscription : {profile['date']}
-            Niveau : {profile['niveau']}
-            Points : {profile['points']}
-            """
+            Nom : {profile["username"]}
+            Email : {profile["email"]}
+            Inscription : {profile["date"]}
+            Niveau : {profile["niveau"]}
+            Points : {profile["points"]}
+            """,
         )
 
     def view_history(self):
@@ -56,18 +52,7 @@ class UsersView(QWidget):
         user = Session.user
         history = self.service.see_points_history(user)
         if not history:
-            QMessageBox.information(
-                self,
-                "Historique",
-                "Aucune transaction de points."
-            )
+            QMessageBox.information(self, "Historique", "Aucune transaction de points.")
             return
-        text = "\n".join(
-            f"{t[2]} | {t[1]} | {t[0]}"
-            for t in history
-        )
-        QMessageBox.information(
-            self,
-            "Historique des points",
-            text
-        )
+        text = "\n".join(f"{t[2]} | {t[1]} | {t[0]}" for t in history)
+        QMessageBox.information(self, "Historique des points", text)

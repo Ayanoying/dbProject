@@ -11,7 +11,7 @@ from repositories.usersRepository import UsersRepository
 from repositories.summariesRepository import SummariesRepository
 
 
-BASE_DATA = os.path.join(os.path.dirname(__file__),"..", "..", "res", "data")
+BASE_DATA = os.path.join(os.path.dirname(__file__), "..", "..", "res", "data")
 
 
 def load_data():
@@ -19,9 +19,7 @@ def load_data():
     courses_parser = CoursesParser(os.path.join(BASE_DATA, "cours.csv"))
     users_parser = UsersParser(os.path.join(BASE_DATA, "utilisateurs.xml"))
     summaries_parser = SummariesParser(os.path.join(BASE_DATA, "utilisateurs.xml"))
-    evaluations_parser = EvaluationsParser(
-        os.path.join(BASE_DATA, "commentaires.json")
-    )
+    evaluations_parser = EvaluationsParser(os.path.join(BASE_DATA, "commentaires.json"))
 
     # Repositories
     courses_repo = CoursesRepository()

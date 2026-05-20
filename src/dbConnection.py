@@ -2,6 +2,13 @@ import os
 import psycopg2
 from pathlib import Path
 
+FALL_BACK_DB_NAME = "h303database"
+FALL_BACK_DB_USER = "appuser"
+FALL_BACK_DB_PASSWORD = "appuser123"
+FALL_BACK_DB_HOST = "localhost"
+FALL_BACK_DB_PORT = 5432
+
+
 # Permet de lire le .env et d'utiliser ses variables
 env_path = Path(__file__).parent.parent / ".env"
 if env_path.exists():
@@ -22,9 +29,9 @@ def get_connection():
         return psycopg2.connect(dsn, sslmode=sslmode)
 
     return psycopg2.connect(
-        dbname=os.getenv("DB_NAME", "h303database"),
-        user=os.getenv("DB_USER", "appuser"),
-        password=os.getenv("DB_PASSWORD", "appuser123"),
-        host=os.getenv("DB_HOST", "localhost"),
-        port=int(os.getenv("DB_PORT", 5432)),
+        dbname=os.getenv("DB_NAME", FALL_BACK_DB_NAME),
+        user=os.getenv("DB_USER", FALL_BACK_DB_NAME),
+        password=os.getenv("DB_PASSWORD", FALL_BACK_DB_NAME),
+        host=os.getenv("DB_HOST", FALL_BACK_DB_NAME),
+        port=int(os.getenv("DB_PORT", FALL_BACK_DB_NAME)),
     )
