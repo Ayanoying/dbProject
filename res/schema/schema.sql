@@ -64,7 +64,7 @@ CREATE TABLE evaluations (
 
 CREATE TABLE transactions (
     id_transaction   SERIAL PRIMARY KEY,
-    type_transaction TEXT      NOT NULL CHECK (type_transaction IN ('publication', 'evaluation', 'achat')),
+    type_transaction TEXT      NOT NULL CHECK (type_transaction IN ('publication', 'evaluation', 'achat', 'suppression')),
     date_transaction TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     montant          INT       NOT NULL,
     id_utilisateur   INT       NOT NULL REFERENCES utilisateurs(id_utilisateur),

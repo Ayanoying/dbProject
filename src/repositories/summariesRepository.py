@@ -59,6 +59,19 @@ class SummariesRepository:
         cur.close()
         conn.close()
         return summary_id
+    
+    def get_by_id(self, summary_id):
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id_resume, titre, description
+            FROM resumes
+            WHERE id_resume = %s
+        """, (summary_id,))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        return result
 
     def get_by_course(self, course_code): # récupère tous les résumés visibles d'un cours 
         conn = get_connection()
