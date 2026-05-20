@@ -14,7 +14,7 @@ class ConnectionView(QMainWindow):
     def __init__(self):
         super().__init__()
         self.service = UsersService()
-        self.setWindowTitle("Plateforme de résumés")
+        self.setWindowTitle("Plateforme de résumés : Connexion")
         self.setMinimumSize(800, 600)
         self.mode = None
         self.init_ui()

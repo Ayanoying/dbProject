@@ -9,8 +9,9 @@ from session import Session
 
 class UsersView(QWidget):
 
-    def __init__(self):
+    def __init__(self, main_window =None):
         super().__init__()
+        self.main_window = main_window
         self.service = UsersService()
         self.setWindowTitle("Compte")
         self.setMinimumSize(800, 600)
@@ -24,7 +25,7 @@ class UsersView(QWidget):
         self.btn_back = QPushButton("Retour")
         self.btn_profile.clicked.connect(self.view_profile)
         self.btn_history.clicked.connect(self.view_history)
-        self.btn_back.clicked.connect(self.close)
+        self.btn_back.clicked.connect(self.main_window.go_home)
         layout.addWidget(self.btn_profile)
         layout.addWidget(self.btn_history)
         layout.addWidget(self.btn_back)

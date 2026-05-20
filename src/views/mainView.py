@@ -1,58 +1,72 @@
 from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, 
-    QVBoxLayout, QPushButton
+    QMainWindow, QWidget, QVBoxLayout,
+    QPushButton, QStackedWidget
 )
 
 from views.usersView import UsersView
 from views.coursesView import CoursesView
 from views.summariesView import SummariesView
+from session import Session
+
+
+class HomePage(QWidget):
+    def __init__(self, parent_main):
+        super().__init__()
+        layout = QVBoxLayout(self)
+
+        btn_users = QPushButton("Compte")
+        btn_courses = QPushButton("Cours")
+        btn_summaries = QPushButton("Résumés")
+        btn_logout = QPushButton("Se déconnecter")
+
+        btn_users.clicked.connect(parent_main.open_users)
+        btn_courses.clicked.connect(parent_main.open_courses)
+        btn_summaries.clicked.connect(parent_main.open_summaries)
+        btn_logout.clicked.connect(parent_main.logout)
+
+        layout.addWidget(btn_users)
+        layout.addWidget(btn_courses)
+        layout.addWidget(btn_summaries)
+        layout.addWidget(btn_logout)
 
 
 class MainView(QMainWindow):
-
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("Plateforme de résumés")
         self.setMinimumSize(800, 600)
 
-        self.users_view = None
-        self.courses_view = None
-        self.summaries_view = None
+        self.stack = QStackedWidget()
+        self.setCentralWidget(self.stack)
 
-        self.init_ui()
+        self.home_page = HomePage(self)
+        self.users_page = UsersView(self)
+        self.courses_page = CoursesView(self)
+        self.summaries_page = SummariesView(self)
 
-    def init_ui(self):
+        self.stack.addWidget(self.home_page)
+        self.stack.addWidget(self.users_page)
+        self.stack.addWidget(self.courses_page)
+        self.stack.addWidget(self.summaries_page)
 
-        central = QWidget()
-        layout = QVBoxLayout()
-
-        btn_users = QPushButton("Compte")
-        btn_courses = QPushButton("Cours")
-        btn_summaries = QPushButton("Résumés")
-        btn_exit = QPushButton("Se déconnecter")
-
-        btn_users.clicked.connect(self.open_users)
-        btn_courses.clicked.connect(self.open_courses)
-        btn_summaries.clicked.connect(self.open_summaries)
-        btn_exit.clicked.connect(self.close)
-
-        layout.addWidget(btn_users)
-        layout.addWidget(btn_courses)
-        layout.addWidget(btn_summaries)
-        layout.addWidget(btn_exit)
-
-        central.setLayout(layout)
-        self.setCentralWidget(central)
+        self.stack.setCurrentWidget(self.home_page)
 
     def open_users(self):
-        self.users_view = UsersView()
-        self.users_view.show()
+        self.stack.setCurrentWidget(self.users_page)
 
     def open_courses(self):
-        self.courses_view = CoursesView()
-        self.courses_view.show()
+        self.stack.setCurrentWidget(self.courses_page)
 
     def open_summaries(self):
-        self.summaries_view = SummariesView()
-        self.summaries_view.show()
+        self.stack.setCurrentWidget(self.summaries_page)
+
+    def go_home(self):
+        self.stack.setCurrentWidget(self.home_page)
+
+    def logout(self):
+        from views.connectionView import ConnectionView
+        Session.logout()
+        self.connection = ConnectionView()
+        self.connection.show()
+        self.close()
