@@ -16,7 +16,7 @@ class CoursesView(QWidget):
         self.main_window = main_window
         self.service = CoursesService()
         self.setWindowTitle("Cours")
-        self.setMinimumSize(300, 300)
+        self.setMinimumSize(800, 600)
         self.current_user = None
         self.init_ui()
 

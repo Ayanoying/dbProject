@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
 from views.usersView import UsersView
 from views.coursesView import CoursesView
 from views.summariesView import SummariesView
+from session import Session
 
 
 class HomePage(QWidget):
@@ -16,17 +17,17 @@ class HomePage(QWidget):
         btn_users = QPushButton("Compte")
         btn_courses = QPushButton("Cours")
         btn_summaries = QPushButton("Résumés")
-        btn_exit = QPushButton("Se déconnecter")
+        btn_logout = QPushButton("Se déconnecter")
 
         btn_users.clicked.connect(parent_main.open_users)
         btn_courses.clicked.connect(parent_main.open_courses)
         btn_summaries.clicked.connect(parent_main.open_summaries)
-        btn_exit.clicked.connect(parent_main.close)
+        btn_logout.clicked.connect(parent_main.logout)
 
         layout.addWidget(btn_users)
         layout.addWidget(btn_courses)
         layout.addWidget(btn_summaries)
-        layout.addWidget(btn_exit)
+        layout.addWidget(btn_logout)
 
 
 class MainView(QMainWindow):
@@ -34,7 +35,7 @@ class MainView(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Plateforme de résumés")
-        self.setMinimumSize(300, 300)
+        self.setMinimumSize(800, 600)
 
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
@@ -62,3 +63,10 @@ class MainView(QMainWindow):
 
     def go_home(self):
         self.stack.setCurrentWidget(self.home_page)
+
+    def logout(self):
+        from views.connectionView import ConnectionView
+        Session.logout()
+        self.connection = ConnectionView()
+        self.connection.show()
+        self.close()
