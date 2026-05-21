@@ -1,6 +1,9 @@
 from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout,
-    QPushButton, QStackedWidget
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QPushButton,
+    QStackedWidget,
 )
 
 from views.usersView import UsersView
@@ -66,6 +69,7 @@ class MainView(QMainWindow):
 
     def logout(self):
         from views.connectionView import ConnectionView
+
         Session.logout()
         self.connection = ConnectionView()
         self.connection.show()

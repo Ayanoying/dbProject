@@ -1,71 +1,85 @@
 from dbConnection import get_connection
 import psycopg2
 
+
 class EvaluationsRepository:
     def save_many(self, evaluations):
-        conn = get_connection()
-        cur = conn.cursor()
+        connection = get_connection()
+        cursor = connection.cursor()
         for e in evaluations:
-            cur.execute("""
+            cursor.execute(
+                """
                 SELECT id_resume FROM resumes
                 WHERE code_cours = %s AND titre = %s
                 LIMIT 1;
-            """, (e["resume"]["cours"], e["resume"]["titre"]))
-            row = cur.fetchone()
+            """,
+                (e["resume"]["cours"], e["resume"]["titre"]),
+            )
+            row = cursor.fetchone()
             if row is None:
                 continue
 
             summary_id = row[0]
 
-            cur.execute("""
+            cursor.execute(
+                """
                 SELECT id_utilisateur FROM utilisateurs
                 WHERE nom_utilisateur = %s;
-            """, (e["auteur"],))
-            author_row = cur.fetchone()
+            """,
+                (e["auteur"],),
+            )
+            author_row = cursor.fetchone()
             if author_row is None:
                 continue
 
-            cur.execute("""
+            cursor.execute(
+                """
                 INSERT INTO evaluations (note, commentaire, id_auteur, id_resume)
                 VALUES (%s, %s, %s, %s)
                 ON CONFLICT (id_auteur, id_resume) DO NOTHING;
-            """, (e["note"], e["commentaire"], author_row[0], summary_id))
+            """,
+                (e["note"], e["commentaire"], author_row[0], summary_id),
+            )
 
-        conn.commit()
-        cur.close()
-        conn.close()
-    
+        connection.commit()
+        cursor.close()
+        connection.close()
+
     def add_evaluation(self, note, commentaire, id_auteur, id_resume):
-        conn = get_connection()
-        cur = conn.cursor()
+        connection = get_connection()
+        cursor = connection.cursor()
         try:
-            cur.execute("""
+            cursor.execute(
+                """
                 INSERT INTO evaluations (note, commentaire, id_auteur, id_resume)
                 VALUES (%s, %s, %s, %s)
                 RETURNING id_evaluation;
-            """, (note, commentaire, id_auteur, id_resume))
+            """,
+                (note, commentaire, id_auteur, id_resume),
+            )
 
-            result = cur.fetchone()
-            conn.commit()
+            result = cursor.fetchone()
+            connection.commit()
             return result[0] if result else None
-        
+
         except psycopg2.errors.UniqueViolation:
-            conn.rollback()
+            connection.rollback()
             return -1
 
         except Exception:
-            conn.rollback()
+            connection.rollback()
             raise
 
         finally:
-            cur.close()
-            conn.close()
+            cursor.close()
+            connection.close()
 
     def update_summary_average(self, id_resume):
-        conn = get_connection()
-        cur = conn.cursor()
+        connection = get_connection()
+        cursor = connection.cursor()
         try:
-            cur.execute("""
+            cursor.execute(
+                """
                 UPDATE resumes
                 SET note_moyenne = (
                     SELECT COALESCE(AVG(note), 0)
@@ -73,14 +87,16 @@ class EvaluationsRepository:
                     WHERE id_resume = %s
                 )
                 WHERE id_resume = %s
-            """, (id_resume, id_resume))
+            """,
+                (id_resume, id_resume),
+            )
 
-            conn.commit()
+            connection.commit()
 
         except Exception:
-            conn.rollback()
+            connection.rollback()
             raise
 
         finally:
-            cur.close()
-            conn.close()
+            cursor.close()
+            connection.close()

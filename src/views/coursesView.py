@@ -1,8 +1,11 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout,
-    QPushButton, QMessageBox,
-    QInputDialog, QDialog,
-    QTextEdit
+    QWidget,
+    QVBoxLayout,
+    QPushButton,
+    QMessageBox,
+    QInputDialog,
+    QDialog,
+    QTextEdit,
 )
 
 from services.coursesService import CoursesService
@@ -10,8 +13,7 @@ from session import Session
 
 
 class CoursesView(QWidget):
-
-    def __init__(self, main_window =None):
+    def __init__(self, main_window=None):
         super().__init__()
         self.main_window = main_window
         self.service = CoursesService()
@@ -43,10 +45,7 @@ class CoursesView(QWidget):
             QMessageBox.information(self, "Cours", "Aucun cours disponible.")
             return
 
-        text = "\n".join(
-            f"{c[0]} | {c[1]} | {c[2]} | {c[3]}"
-            for c in courses
-        )
+        text = "\n".join(f"{c[0]} | {c[1]} | {c[2]} | {c[3]}" for c in courses)
 
         dialog = QDialog(self)
         dialog.setWindowTitle("Liste des cours")

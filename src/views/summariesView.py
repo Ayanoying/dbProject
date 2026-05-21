@@ -1,16 +1,11 @@
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout,
-    QPushButton, QMessageBox,
-    QInputDialog
-)
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QMessageBox, QInputDialog
 
 from services.summariesService import SummariesService
 from session import Session
 
 
 class SummariesView(QWidget):
-
-    def __init__(self, main_window =None):
+    def __init__(self, main_window=None):
         super().__init__()
         self.main_window = main_window
         self.service = SummariesService()
@@ -59,13 +54,9 @@ class SummariesView(QWidget):
         for s in summaries:
             note = s[5] if s[5] is not None else "Rien"
             text += (
-                f"[{s[0]}] {s[1]}\n"
-                f"Auteur : {s[6]}\n"
-                f"Version : {s[4]}\n"
-                f"Note : {note}\n\n"
+                f"[{s[0]}] {s[1]}\nAuteur : {s[6]}\nVersion : {s[4]}\nNote : {note}\n\n"
             )
         QMessageBox.information(self, "Résumés du cours", text)
-
 
     def view_evaluate(self):
         if not Session.is_authenticated():
@@ -98,7 +89,7 @@ class SummariesView(QWidget):
             QMessageBox.warning(self, "Erreur", "Vous avez déjà noté ce résumé.")
         else:
             QMessageBox.information(self, "OK", f"Évaluation ajoutée ! ID : {result}")
-            
+
     def view_list_mines(self):
         if not Session.is_authenticated():
             QMessageBox.warning(self, "Erreur", "Pas connecté")
@@ -111,12 +102,7 @@ class SummariesView(QWidget):
         text = ""
         for s in summaries:
             note = s[5] if s[5] is not None else "Rien"
-            text += (
-                f"[{s[0]}] {s[1]}\n"
-                f"{s[2]}\n"
-                f"{s[3]}\n"
-                f"v{s[4]} | note: {note}\n\n"
-            )
+            text += f"[{s[0]}] {s[1]}\n{s[2]}\n{s[3]}\nv{s[4]} | note: {note}\n\n"
         QMessageBox.information(self, "Mes résumés", text)
 
     def view_publish(self):

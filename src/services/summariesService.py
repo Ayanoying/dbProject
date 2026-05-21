@@ -4,8 +4,8 @@ from repositories.coursesRepository import CoursesRepository
 from repositories.pointsRepository import PointsRepository
 from repositories.evaluationsRepository import EvaluationsRepository
 
-class SummariesService:
 
+class SummariesService:
     def __init__(self):
         self.repo = SummariesRepository()
         self.users_repo = UsersRepository()
@@ -23,7 +23,7 @@ class SummariesService:
             return False
         user_id = user[0]
         summary_id = self.repo.publish(title, description, user_id, course_code)
-        self.points_repo.add_transaction('publication', +50, user_id, summary_id)
+        self.points_repo.add_transaction("publication", +50, user_id, summary_id)
         return summary_id
 
     def see_course_summaries(self, course_code):
@@ -50,7 +50,7 @@ class SummariesService:
         if not deleted:
             return False
 
-        self.points_repo.add_transaction('suppression', -50, user[0], summary_id = None)
+        self.points_repo.add_transaction("suppression", -50, user[0], summary_id=None)
         return True
 
     def evaluate(self, username, summary_id, note, commentaire):
@@ -66,14 +66,13 @@ class SummariesService:
             return "invalid_note"
 
         evaluation_id = self.evaluations_repo.add_evaluation(
-            note,
-            commentaire,
-            user[0],
-            summary_id
+            note, commentaire, user[0], summary_id
         )
         if evaluation_id == -1:
             return "already_exists"
-        
+
         self.evaluations_repo.update_summary_average(summary_id)
-        self.points_repo.add_transaction('evaluation', +10, user[0], None, evaluation_id)
+        self.points_repo.add_transaction(
+            "evaluation", +10, user[0], None, evaluation_id
+        )
         return evaluation_id
