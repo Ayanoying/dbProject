@@ -5,10 +5,10 @@ from dbConnection import (
 
 class UsersRepository:
     def save_many(self, users):  # insère une liste d'utilisateurs (venant du XML)
-        conn = get_connection()  # ouvre la connexion à la base
-        cur = conn.cursor()  # crée un curseur pour exécuter du SQL
+        connection = get_connection()  # ouvre la connexion à la base
+        cursor = connection.cursor()  # crée un curseur pour exécuter du SQL
         for u in users:  # boucle sur chaque utilisateur
-            cur.execute(
+            cursor.execute(
                 """
                 INSERT INTO utilisateurs (nom_utilisateur, email, date_inscription, niveau, nombre_points)
                 VALUES (%s, %s, %s, %s, %s)
@@ -23,14 +23,14 @@ class UsersRepository:
                 ),
             )
 
-        conn.commit()  # valide toutes les insertions
-        cur.close()  # ferme le curseur
-        conn.close()  # ferme la connexion
+        connection.commit()  # valide toutes les insertions
+        cursor.close()  # ferme le curseur
+        connection.close()  # ferme la connexion
 
     def register(self, username, email):  # inscription d'un nouveau user via l'appli
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute(
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
             """
             INSERT INTO utilisateurs (nom_utilisateur, email)
             VALUES (%s, %s)
@@ -38,16 +38,16 @@ class UsersRepository:
             (username, email),
         )
 
-        user_id = cur.fetchone()[0]  # on récupère cet id généré automatiquement
-        conn.commit()
-        cur.close()
-        conn.close()
+        user_id = cursor.fetchone()[0]  # on récupère cet id généré automatiquement
+        connection.commit()
+        cursor.close()
+        connection.close()
         return user_id  # on le retourne pour pouvoir l'utiliser ensuite
 
     def find_by_username(self, username):  # cherche un utilisateur par son nom
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute(
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
             """
             SELECT id_utilisateur, nom_utilisateur, email, date_inscription, niveau, nombre_points
             FROM utilisateurs
@@ -55,15 +55,15 @@ class UsersRepository:
             (username,),
         )
 
-        row = cur.fetchone()  # récupère une seule ligne (ou None si pas trouvé)
-        cur.close()
-        conn.close()
+        row = cursor.fetchone()  # récupère une seule ligne (ou None si pas trouvé)
+        cursor.close()
+        connection.close()
         return row  # retourne un tuple (id, nom, email, date, niveau, points) ou None
 
     def find_by_email(self, email):  # cherche un utilisateur par son nom
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute(
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
             """
             SELECT id_utilisateur, nom_utilisateur, email, date_inscription, niveau, nombre_points
             FROM utilisateurs
@@ -71,9 +71,9 @@ class UsersRepository:
             (email,),
         )
 
-        row = cur.fetchone()  # récupère une seule ligne (ou None si pas trouvé)
-        cur.close()
-        conn.close()
+        row = cursor.fetchone()  # récupère une seule ligne (ou None si pas trouvé)
+        cursor.close()
+        connection.close()
         return row  # retourne un tuple (id, nom, email, date, niveau, points) ou None
 
 

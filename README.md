@@ -1,5 +1,3 @@
-    
-
 # dbProject
 
 Ce projet INFOH303 consiste à créer une base de données pour une plateforme de partage de résumés de cours. Les données sont insérées dans une base PostgreSQL.
@@ -72,7 +70,7 @@ GRANT USAGE, CREATE ON SCHEMA public TO appuser;
 
 ## Configuration PostgreSQL (en ligne)
 
-Pour faciliter l'accès à la base de données entre développeurs/administrateurs et depuis n'importe où, nous avons utilisé Neon, une plateforme de base données postgreSQL en ligne et OPEN SOURCE, facile à configurer et installer.
+Pour faciliter l'accès à la base de données entre développeurs/administrateurs et depuis n'importe où, nous avons utilisé Neon, une plateforme de base données postgreSQL en ligne et **[OPEN SOURCE](https://github.com/neondatabase/neon)**, facile à configurer et installer.
 
 1. Créer un compte sur [Neon](https://neon.tech/).
 2. Créer un projet et une base de données.
@@ -81,9 +79,6 @@ Pour faciliter l'accès à la base de données entre développeurs/administrateu
 ```env
 DATABASE_URL="CONNECTION_STRING"
 ```
-
-
-
 
 ## Création des tables et (ré)initialisation des données
 
