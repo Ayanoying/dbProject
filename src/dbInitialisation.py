@@ -11,7 +11,7 @@ from repositories.usersRepository import UsersRepository
 from repositories.summariesRepository import SummariesRepository
 
 
-BASE_DATA = os.path.join(os.path.dirname(__file__), "..", "..", "res", "data")
+BASE_DATA = os.path.join(os.path.dirname(__file__), "..", "res", "data")
 COURSE_FILE = os.path.join(BASE_DATA, "cours.csv")
 USERS_FILE = os.path.join(BASE_DATA, "utilisateurs.xml")
 SUMMARIES_FILE = os.path.join(BASE_DATA, "utilisateurs.xml")

@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
 
 from services.usersService import UsersService
 from views.mainView import MainView
-from loaders.dataLoader import init_data
+from dbInitialisation import init_data
 from session import Session
 
 
