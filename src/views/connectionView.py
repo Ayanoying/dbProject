@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
 
 from services.usersService import UsersService
 from views.mainView import MainView
-from loaders.dataLoader import load_data
+from loaders.dataLoader import init_data
 from session import Session
 
 
@@ -31,7 +31,7 @@ class ConnectionView(QMainWindow):
         self.btn_exit = QPushButton("Quitter")
         self.btn_signup_mode.clicked.connect(self.show_signup)
         self.btn_login_mode.clicked.connect(self.show_login)
-        self.btn_load.clicked.connect(self.load_data_action)
+        self.btn_load.clicked.connect(self.init_data_action)
         self.btn_exit.clicked.connect(self.close)
         self.layout.addWidget(self.btn_signup_mode)
         self.layout.addWidget(self.btn_login_mode)
@@ -93,8 +93,8 @@ class ConnectionView(QMainWindow):
             QMessageBox.information(self, "OK", f"Connecté en tant que {Session.user}")
             self.open_main()
 
-    def load_data_action(self):
-        load_data()
+    def init_data_action(self):
+        init_data()
         QMessageBox.information(self, "OK", "Données chargées avec succès!")
 
     def open_main(self):

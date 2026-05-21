@@ -14,7 +14,7 @@ from repositories.summariesRepository import SummariesRepository
 BASE_DATA = os.path.join(os.path.dirname(__file__), "..", "..", "res", "data")
 
 
-def load_data():
+def init_data():
     # Parsers
     courses_parser = CoursesParser(os.path.join(BASE_DATA, "cours.csv"))
     users_parser = UsersParser(os.path.join(BASE_DATA, "utilisateurs.xml"))
