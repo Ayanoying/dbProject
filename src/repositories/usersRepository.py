@@ -1,80 +1,81 @@
-from dbConnection import (
-    get_connection,
-)  # importe la fonction qui ouvre une connexion PostgreSQL
+from dbConnection import get_connection
 
 
 class UsersRepository:
-    def save_many(self, users):  # insère une liste d'utilisateurs (venant du XML)
-        connection = get_connection()  # ouvre la connexion à la base
-        cursor = connection.cursor()  # crée un curseur pour exécuter du SQL
-        for u in users:  # boucle sur chaque utilisateur
+    """Data access for users."""
+
+    def save_many(self, users):
+        """Insert multiple users from parsed data."""
+        connection = get_connection()
+        cursor = connection.cursor()
+        for user in users:
             cursor.execute(
                 """
-                INSERT INTO utilisateurs (nom_utilisateur, email, date_inscription, niveau, nombre_points)
+                INSERT INTO users (username, email, registration_date, profile_level, profile_points)
                 VALUES (%s, %s, %s, %s, %s)
-                ON CONFLICT (nom_utilisateur) DO NOTHING;
-                -- si le nom existe déjà, on ne fait rien (pas d'erreur)""",
+                ON CONFLICT DO NOTHING;
+                """,
                 (
-                    u["nom_utilisateur"],
-                    u["email"],
-                    u["date_inscription"],
-                    u["niveau"],
-                    u["nombre_points"],
+                    user["username"],
+                    user["email"],
+                    user["registration_date"],
+                    user["profile_level"],
+                    user["profile_points"],
                 ),
             )
 
-        connection.commit()  # valide toutes les insertions
-        cursor.close()  # ferme le curseur
-        connection.close()  # ferme la connexion
-
-    def register(self, username, email):  # inscription d'un nouveau user via l'appli
-        connection = get_connection()
-        cursor = connection.cursor()
-        cursor.execute(
-            """
-            INSERT INTO utilisateurs (nom_utilisateur, email)
-            VALUES (%s, %s)
-            RETURNING id_utilisateur;  -- PostgreSQL retourne l'id qu'il vient de générer """,
-            (username, email),
-        )
-
-        user_id = cursor.fetchone()[0]  # on récupère cet id généré automatiquement
         connection.commit()
         cursor.close()
         connection.close()
-        return user_id  # on le retourne pour pouvoir l'utiliser ensuite
 
-    def find_by_username(self, username):  # cherche un utilisateur par son nom
+    def register(self, username, email):
+        """Create a user account and return its generated id."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT id_utilisateur, nom_utilisateur, email, date_inscription, niveau, nombre_points
-            FROM utilisateurs
-            WHERE nom_utilisateur = %s;  -- filtre sur le nom exact """,
+            INSERT INTO users (username, email)
+            VALUES (%s, %s)
+            RETURNING id_user;
+            """,
+            (username, email),
+        )
+        user_id = cursor.fetchone()[0]
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return user_id
+
+    def find_by_username(self, username):
+        """Return one user row by username, or None."""
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            SELECT id_user, username, email, registration_date, profile_level, profile_points, active_item_id
+            FROM users
+            WHERE username = %s;
+            """,
             (username,),
         )
-
-        row = cursor.fetchone()  # récupère une seule ligne (ou None si pas trouvé)
+        row = cursor.fetchone()
         cursor.close()
         connection.close()
-        return row  # retourne un tuple (id, nom, email, date, niveau, points) ou None
+        return row
 
-    def find_by_email(self, email):  # cherche un utilisateur par son nom
+    def find_by_email(self, email):
+        """Return one user row by email, or None."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT id_utilisateur, nom_utilisateur, email, date_inscription, niveau, nombre_points
-            FROM utilisateurs
-            WHERE email = %s;  -- filtre sur le nom exact """,
+            SELECT id_user, username, email, registration_date, profile_level, profile_points, active_item_id
+            FROM users
+            WHERE email = %s;
+            """,
             (email,),
         )
-
-        row = cursor.fetchone()  # récupère une seule ligne (ou None si pas trouvé)
+        row = cursor.fetchone()
         cursor.close()
         connection.close()
-        return row  # retourne un tuple (id, nom, email, date, niveau, points) ou None
-
-
-# liaison à la base de données SQL
+        return row

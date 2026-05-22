@@ -2,6 +2,8 @@ from dbConnection import get_connection
 
 
 class PointsRepository:
+    """Data access for points transactions."""
+
     def add_transaction(
         self,
         transaction_type,
@@ -15,37 +17,40 @@ class PointsRepository:
         cursor = connection.cursor()
         cursor.execute(
             """
-            INSERT INTO transactions (type_transaction, montant, id_utilisateur, id_resume, id_evaluation, id_objet)
+            INSERT INTO transactions (transaction_type, amount, user_id, summary_id, evaluation_id, item_id)
             VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id_transaction;""",
+            RETURNING id_transaction;
+            """,
             (transaction_type, amount, user_id, summary_id, evaluation_id, item_id),
-        )  # RETURNING id_transaction retourne l'id généré automatiquement
+        )
 
         result = cursor.fetchone()
 
         cursor.execute(
             """
-            UPDATE utilisateurs
-            SET nombre_points = nombre_points + %s
-            WHERE id_utilisateur = %s;""",
+            UPDATE users
+            SET profile_points = profile_points + %s
+            WHERE id_user = %s;
+            """,
             (amount, user_id),
         )
 
         connection.commit()
         cursor.close()
         connection.close()
-        return result is not None  # True si inséré, False si code_cours déjà existant
+        return result is not None
 
     def get_user_histories(self, user_id):
+        """Return transaction history for one user."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT type_transaction, montant, date_transaction
+            SELECT transaction_type, amount, transaction_date
             FROM transactions
-            WHERE id_utilisateur = %s
-            ORDER BY date_transaction DESC
-        """,
+            WHERE user_id = %s
+            ORDER BY transaction_date DESC
+            """,
             (user_id,),
         )
         rows = cursor.fetchall()

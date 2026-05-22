@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 from views.usersView import UsersView
 from views.coursesView import CoursesView
 from views.summariesView import SummariesView
+from views.shopView import ShopView
 from session import Session
 
 
@@ -20,16 +21,19 @@ class HomePage(QWidget):
         btn_users = QPushButton("Compte")
         btn_courses = QPushButton("Cours")
         btn_summaries = QPushButton("Résumés")
+        btn_shop = QPushButton("Boutique")
         btn_logout = QPushButton("Se déconnecter")
 
         btn_users.clicked.connect(parent_main.open_users)
         btn_courses.clicked.connect(parent_main.open_courses)
         btn_summaries.clicked.connect(parent_main.open_summaries)
+        btn_shop.clicked.connect(parent_main.open_shop)
         btn_logout.clicked.connect(parent_main.logout)
 
         layout.addWidget(btn_users)
         layout.addWidget(btn_courses)
         layout.addWidget(btn_summaries)
+        layout.addWidget(btn_shop)
         layout.addWidget(btn_logout)
 
 
@@ -47,11 +51,13 @@ class MainView(QMainWindow):
         self.users_page = UsersView(self)
         self.courses_page = CoursesView(self)
         self.summaries_page = SummariesView(self)
+        self.shop_page = ShopView(self)
 
         self.stack.addWidget(self.home_page)
         self.stack.addWidget(self.users_page)
         self.stack.addWidget(self.courses_page)
         self.stack.addWidget(self.summaries_page)
+        self.stack.addWidget(self.shop_page)
 
         self.stack.setCurrentWidget(self.home_page)
 
@@ -63,6 +69,9 @@ class MainView(QMainWindow):
 
     def open_summaries(self):
         self.stack.setCurrentWidget(self.summaries_page)
+
+    def open_shop(self):
+        self.stack.setCurrentWidget(self.shop_page)
 
     def go_home(self):
         self.stack.setCurrentWidget(self.home_page)

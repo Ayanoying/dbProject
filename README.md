@@ -103,7 +103,7 @@ psql 'CONNECTION_STRING' -f res/schema/schema.sql
 #### Avec script
 
 ```bash
-python3 init_db.py
+python3 dbInit.py
 ```
 
 #### Sans script

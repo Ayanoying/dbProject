@@ -5,6 +5,8 @@ from session import Session
 
 
 class SummariesView(QWidget):
+    """Summaries page for listing, publishing, editing, and evaluating summaries."""
+
     def __init__(self, main_window=None):
         super().__init__()
         self.main_window = main_window
@@ -43,10 +45,10 @@ class SummariesView(QWidget):
         if not Session.is_authenticated():
             QMessageBox.warning(self, "Erreur", "Pas connecté")
             return
-        code, ok = QInputDialog.getText(self, "Cours", "Code du cours : ")
+        course_name, ok = QInputDialog.getText(self, "Cours", "Nom du cours : ")
         if not ok:
             return
-        summaries = self.service.see_course_summaries(code.upper())
+        summaries = self.service.see_course_summaries(course_name.strip())
         if not summaries:
             QMessageBox.information(self, "Résumés", "Aucun résumé trouvé.")
             return
@@ -102,7 +104,7 @@ class SummariesView(QWidget):
         text = ""
         for s in summaries:
             note = s[5] if s[5] is not None else "Rien"
-            text += f"[{s[0]}] {s[1]}\n{s[2]}\n{s[3]}\nv{s[4]} | note: {note}\n\n"
+            text += f"[{s[0]}] {s[1]}\n{s[2]}\n{s[3]}\n{s[4]} | note: {note}\n\n"
         QMessageBox.information(self, "Mes résumés", text)
 
     def view_publish(self):
@@ -110,7 +112,7 @@ class SummariesView(QWidget):
             QMessageBox.warning(self, "Erreur", "Pas connecté")
             return
         username = Session.user
-        code, ok1 = QInputDialog.getText(self, "Cours", "Code du cours :")
+        course_name, ok1 = QInputDialog.getText(self, "Cours", "Nom du cours :")
         if not ok1:
             return
         title, ok2 = QInputDialog.getText(self, "Titre", "Titre :")
@@ -119,7 +121,7 @@ class SummariesView(QWidget):
         desc, ok3 = QInputDialog.getText(self, "Description", "Description :")
         if not ok3:
             return
-        result = self.service.publish(username, code.upper(), title, desc)
+        result = self.service.publish(username, course_name.strip(), title, desc)
         if result is None:
             QMessageBox.warning(self, "Erreur", "Utilisateur introuvable.")
         elif result is False:

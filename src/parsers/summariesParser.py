@@ -1,12 +1,17 @@
-import xml.etree.ElementTree as ET
+from defusedxml import ElementTree as ET
 
 
 class SummariesParser:
-    def __init__(self, xml_path):
+    """Parse summaries XML data from user files."""
+
+    def __init__(self, xml_path, course_lookup=None):
+        """Load XML content immediately."""
         self.xml_path = xml_path
+        self.course_lookup = course_lookup or {}
         self.data = self._load()
 
     def _load(self):
+        """Return parsed summaries as dictionaries."""
         tree = ET.parse(self.xml_path)
         root = tree.getroot()
         summaries = []
@@ -31,17 +36,19 @@ class SummariesParser:
 
                 summaries.append(
                     {
-                        "auteur": author,
-                        "cours": course,
-                        "titre": title,
-                        "date_publication": publication_date
+                        "author": author,
+                        "course": self.course_lookup.get(course, course),
+                        "title": title,
+                        "description": None,
+                        "publication_date": publication_date
                         if publication_date
                         else None,
-                        "note_moyenne": average_note,
+                        "average_rating": average_note,
                     }
                 )
 
         return summaries
 
     def get_summaries(self):
+        """Return loaded summaries."""
         return self.data

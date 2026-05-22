@@ -13,6 +13,8 @@ from session import Session
 
 
 class CoursesView(QWidget):
+    """Courses page to list and create courses."""
+
     def __init__(self, main_window=None):
         super().__init__()
         self.main_window = main_window
@@ -78,16 +80,17 @@ class CoursesView(QWidget):
         faculty, ok3 = QInputDialog.getText(self, "Faculté", "Faculté:")
         if not ok3:
             return
-        credits_str, ok4 = QInputDialog.getText(self, "Crédits", "Crédits:")
+        academic_year, ok4 = QInputDialog.getText(
+            self, "Année académique", "Année académique (ex: 2025-2026):"
+        )
         if not ok4:
             return
-        try:
-            credits = int(credits_str)
-        except ValueError:
-            QMessageBox.critical(self, "Erreur", "Crédits invalides")
-            return
-        inserted = self.service.add_courses(code.upper(), name, faculty, credits)
+        inserted = self.service.add_course(
+            code.strip(), name.strip(), faculty.strip(), academic_year.strip()
+        )
         if inserted:
             QMessageBox.information(self, "OK", "Cours ajouté")
         else:
-            QMessageBox.warning(self, "Erreur", "Code déjà existant")
+            QMessageBox.warning(
+                self, "Erreur", "Cours déjà existant ou données invalides"
+            )

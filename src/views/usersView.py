@@ -5,6 +5,8 @@ from session import Session
 
 
 class UsersView(QWidget):
+    """User profile and points history page."""
+
     def __init__(self, main_window=None):
         super().__init__()
         self.main_window = main_window
@@ -21,7 +23,8 @@ class UsersView(QWidget):
         self.btn_back = QPushButton("Retour")
         self.btn_profile.clicked.connect(self.view_profile)
         self.btn_history.clicked.connect(self.view_history)
-        self.btn_back.clicked.connect(self.main_window.go_home)
+        if self.main_window is not None:
+            self.btn_back.clicked.connect(self.main_window.go_home)
         layout.addWidget(self.btn_profile)
         layout.addWidget(self.btn_history)
         layout.addWidget(self.btn_back)
@@ -33,6 +36,9 @@ class UsersView(QWidget):
             return
         user = Session.user
         profile = self.service.see_profile(user)
+        if profile is None:
+            QMessageBox.warning(self, "Erreur", "Profil introuvable")
+            return
         QMessageBox.information(
             self,
             "Profil",
@@ -40,8 +46,9 @@ class UsersView(QWidget):
             Nom : {profile["username"]}
             Email : {profile["email"]}
             Inscription : {profile["date"]}
-            Niveau : {profile["niveau"]}
+            Niveau : {profile["level"]}
             Points : {profile["points"]}
+            Titre/Badge : {profile.get("title-badge")}
             """,
         )
 

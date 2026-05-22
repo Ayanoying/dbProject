@@ -3,17 +3,22 @@ import psycopg2
 
 
 class EvaluationsRepository:
+    """Data access for evaluations."""
+
     def save_many(self, evaluations):
+        """Insert evaluation rows from parsed JSON input."""
         connection = get_connection()
         cursor = connection.cursor()
-        for e in evaluations:
+        for evaluation in evaluations:
             cursor.execute(
                 """
-                SELECT id_resume FROM resumes
-                WHERE code_cours = %s AND titre = %s
+                SELECT s.id_summary
+                FROM summaries s
+                JOIN courses c ON s.course_id = c.id_course
+                WHERE c.course_name = %s AND s.title = %s
                 LIMIT 1;
-            """,
-                (e["resume"]["cours"], e["resume"]["titre"]),
+                """,
+                (evaluation["resume"]["cours"], evaluation["resume"]["titre"]),
             )
             row = cursor.fetchone()
             if row is None:
@@ -23,10 +28,11 @@ class EvaluationsRepository:
 
             cursor.execute(
                 """
-                SELECT id_utilisateur FROM utilisateurs
-                WHERE nom_utilisateur = %s;
-            """,
-                (e["auteur"],),
+                SELECT id_user
+                FROM users
+                WHERE username = %s;
+                """,
+                (evaluation["auteur"],),
             )
             author_row = cursor.fetchone()
             if author_row is None:
@@ -34,28 +40,34 @@ class EvaluationsRepository:
 
             cursor.execute(
                 """
-                INSERT INTO evaluations (note, commentaire, id_auteur, id_resume)
+                INSERT INTO evaluations (note, comment, user_id, summary_id)
                 VALUES (%s, %s, %s, %s)
-                ON CONFLICT (id_auteur, id_resume) DO NOTHING;
-            """,
-                (e["note"], e["commentaire"], author_row[0], summary_id),
+                ON CONFLICT (user_id, summary_id) DO NOTHING;
+                """,
+                (
+                    evaluation["note"],
+                    evaluation["commentaire"],
+                    author_row[0],
+                    summary_id,
+                ),
             )
 
         connection.commit()
         cursor.close()
         connection.close()
 
-    def add_evaluation(self, note, commentaire, id_auteur, id_resume):
+    def add_evaluation(self, note, comment, user_id, summary_id):
+        """Create one evaluation and return its id."""
         connection = get_connection()
         cursor = connection.cursor()
         try:
             cursor.execute(
                 """
-                INSERT INTO evaluations (note, commentaire, id_auteur, id_resume)
+                INSERT INTO evaluations (note, comment, user_id, summary_id)
                 VALUES (%s, %s, %s, %s)
                 RETURNING id_evaluation;
-            """,
-                (note, commentaire, id_auteur, id_resume),
+                """,
+                (note, comment, user_id, summary_id),
             )
 
             result = cursor.fetchone()
@@ -74,21 +86,22 @@ class EvaluationsRepository:
             cursor.close()
             connection.close()
 
-    def update_summary_average(self, id_resume):
+    def update_summary_average(self, summary_id):
+        """Refresh derived average_rating on one summary."""
         connection = get_connection()
         cursor = connection.cursor()
         try:
             cursor.execute(
                 """
-                UPDATE resumes
-                SET note_moyenne = (
+                UPDATE summaries
+                SET average_rating = (
                     SELECT COALESCE(AVG(note), 0)
                     FROM evaluations
-                    WHERE id_resume = %s
+                    WHERE summary_id = %s
                 )
-                WHERE id_resume = %s
-            """,
-                (id_resume, id_resume),
+                WHERE id_summary = %s
+                """,
+                (summary_id, summary_id),
             )
 
             connection.commit()

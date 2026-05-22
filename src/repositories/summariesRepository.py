@@ -1,54 +1,69 @@
 from dbConnection import get_connection
 
-# fait le ien entre Python et la tables résumés de PostgreSQL
-
 
 class SummariesRepository:
+    """Data access for summaries."""
+
+    @staticmethod
+    def _find_course_id(cursor, course_name):
+        """Return a course id from a course name."""
+        cursor.execute(
+            """
+            SELECT id_course
+            FROM courses
+            WHERE course_name = %s;
+            """,
+            (course_name,),
+        )
+        row = cursor.fetchone()
+        return row[0] if row else None
+
     def save_many(self, summaries):
+        """Insert summaries parsed from XML data."""
         connection = get_connection()
         cursor = connection.cursor()
 
-        for s in summaries:
+        for summary in summaries:
             cursor.execute(
                 """
-                SELECT id_utilisateur
-                FROM utilisateurs
-                WHERE nom_utilisateur = %s;
-            """,
-                (s["auteur"],),
+                SELECT id_user
+                FROM users
+                WHERE username = %s;
+                """,
+                (summary["author"],),
             )
             user_row = cursor.fetchone()
-
             if user_row is None:
                 continue
+
+            course_id = self._find_course_id(cursor, summary["course"])
+            if course_id is None:
+                continue
+
             cursor.execute(
                 """
                 SELECT 1
-                FROM courses
-                WHERE code_cours = %s;
-            """,
-                (s["cours"],),
+                FROM summaries
+                WHERE user_id = %s AND course_id = %s AND title = %s;
+                """,
+                (user_row[0], course_id, summary["title"]),
             )
-            course_exists = cursor.fetchone()
-
-            if course_exists is None:
-                print(
-                    f"Cours inexistant ignoré : {s['cours']} pour le résumé '{s['titre']}'"
-                )
+            if cursor.fetchone() is not None:
                 continue
 
             cursor.execute(
                 """
-                INSERT INTO resumes (titre, date_publication, note_moyenne, id_utilisateur, code_cours)
-                VALUES (%s, %s, %s, %s, %s)
-                ON CONFLICT (id_utilisateur, code_cours, titre) DO NOTHING 
+                INSERT INTO summaries (title, description, publication_date, version, visible, average_rating, user_id, course_id)
+                VALUES (%s, %s, COALESCE(%s, CURRENT_DATE), %s, TRUE, %s, %s, %s);
                 """,
-                (  # ON CONFLICT DO NOTHING pour ne pas ajoute rles doublons
-                    s["titre"],
-                    s["date_publication"],
-                    s["note_moyenne"],
+                (
+                    summary["title"],
+                    summary.get("description"),
+                    summary["publication_date"],
+                    "v1",
+                    summary["average_rating"],
                     user_row[0],
-                    s["cours"],
+                    course_id,
                 ),
             )
 
@@ -56,20 +71,26 @@ class SummariesRepository:
         cursor.close()
         connection.close()
 
-    def publish(
-        self, title, description, user_id, course_code
-    ):  # Insère un nouveau résumé.
+    def publish(self, title, description, user_id, course_name):
+        """Publish a new summary for one user and one course."""
         connection = get_connection()
         cursor = connection.cursor()
+
+        course_id = self._find_course_id(cursor, course_name)
+        if course_id is None:
+            cursor.close()
+            connection.close()
+            return None
+
         cursor.execute(
             """
-            INSERT INTO resumes (titre, description, id_utilisateur, code_cours)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id_resume;
-        """,
-            (title, description, user_id, course_code),
+            INSERT INTO summaries (title, description, publication_date, version, visible, average_rating, user_id, course_id)
+            VALUES (%s, %s, CURRENT_DATE, %s, TRUE, NULL, %s, %s)
+            RETURNING id_summary;
+            """,
+            (title, description, "v1", user_id, course_id),
         )
-        # Returning id_resumes : PostgreSQL retourne l'ID généré automatiquement pour qu'on puisse le communiquer à l'utilisateur
+
         summary_id = cursor.fetchone()[0]
         connection.commit()
         cursor.close()
@@ -77,14 +98,15 @@ class SummariesRepository:
         return summary_id
 
     def get_by_id(self, summary_id):
+        """Return one summary by id."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT id_resume, titre, description
-            FROM resumes
-            WHERE id_resume = %s
-        """,
+            SELECT id_summary, title, description, user_id, course_id
+            FROM summaries
+            WHERE id_summary = %s;
+            """,
             (summary_id,),
         )
         result = cursor.fetchone()
@@ -92,35 +114,38 @@ class SummariesRepository:
         connection.close()
         return result
 
-    def get_by_course(
-        self, course_code
-    ):  # récupère tous les résumés visibles d'un cours
+    def get_by_course(self, course_name):
+        """Return all visible summaries for one course name."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT r.id_resume, r.titre, r.description, r.date_publication,r.version, r.note_moyenne, u.nom_utilisateur
-            FROM resumes r
-            JOIN utilisateurs u ON r.id_utilisateur = u.id_utilisateur
-            WHERE r.code_cours = %s AND r.visibilite = TRUE
-            ORDER BY r.date_publication DESC; """,
-            (course_code,),
+            SELECT s.id_summary, s.title, s.description, s.publication_date, s.version, s.average_rating, u.username
+            FROM summaries s
+            JOIN users u ON s.user_id = u.id_user
+            JOIN courses c ON s.course_id = c.id_course
+            WHERE c.course_name = %s AND s.visible = TRUE
+            ORDER BY s.publication_date DESC;
+            """,
+            (course_name,),
         )
         rows = cursor.fetchall()
         cursor.close()
         connection.close()
         return rows
 
-    def get_by_user(self, user_id):  # Liste tous les résumés d'un utilisateur précis
+    def get_by_user(self, user_id):
+        """Return all summaries authored by one user."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT id_resume, titre, code_cours, date_publication, version, note_moyenne
-            FROM resumes
-            WHERE id_utilisateur = %s
-            ORDER BY date_publication DESC;
-        """,
+            SELECT s.id_summary, s.title, c.course_name, s.publication_date, s.version, s.average_rating
+            FROM summaries s
+            JOIN courses c ON s.course_id = c.id_course
+            WHERE s.user_id = %s
+            ORDER BY s.publication_date DESC;
+            """,
             (user_id,),
         )
         rows = cursor.fetchall()
@@ -128,38 +153,37 @@ class SummariesRepository:
         connection.close()
         return rows
 
-    def update(
-        self, summary_id, title, description, user_id
-    ):  # Modifie le titre/description ET incrémente automatiquement version
+    def update(self, summary_id, title, description, user_id):
+        """Update one summary when it belongs to the user."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            UPDATE resumes
-            SET titre = %s, description = %s, version = version + 1
-            WHERE id_resume = %s AND id_utilisateur = %s
-            RETURNING id_resume;
-        """,
+            UPDATE summaries
+            SET title = %s, description = %s
+            WHERE id_summary = %s AND user_id = %s
+            RETURNING id_summary;
+            """,
             (title, description, summary_id, user_id),
-        )  # condition : "AND id_utilisateur = %s garentit qu'on ne peut modifier que ses propres résmués "
+        )
         result = cursor.fetchone()
         connection.commit()
         cursor.close()
         connection.close()
         return result is not None
 
-    def delete(
-        self, summary_id, user_id
-    ):  # Supprime le résumé uniquement si c'est bien le bon auteur
+    def delete(self, summary_id, user_id):
+        """Delete one summary when it belongs to the user."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            DELETE FROM resumes
-            WHERE id_resume = %s AND id_utilisateur = %s
-            RETURNING id_resume;""",
+            DELETE FROM summaries
+            WHERE id_summary = %s AND user_id = %s
+            RETURNING id_summary;
+            """,
             (summary_id, user_id),
-        )  # RETURNING id_resume permet de savoir si la suppression a eu lieu
+        )
         result = cursor.fetchone()
         connection.commit()
         cursor.close()

@@ -1,22 +1,21 @@
--- Reset: drop tables and function before creating them
-DROP FUNCTION IF EXISTS sync_resume_course_id() CASCADE;
+-- Reset: drop tables before creating them
 DROP TABLE IF EXISTS inventory_items CASCADE;
 DROP TABLE IF EXISTS ranking_history CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
-DROP TABLE IF EXISTS rankings CASCADE;
 DROP TABLE IF EXISTS evaluations CASCADE;
 DROP TABLE IF EXISTS summaries CASCADE;
 DROP TABLE IF EXISTS courses CASCADE;
-DROP TABLE IF EXISTS academic_years CASCADE;
-DROP TABLE IF EXISTS cosmetic_items CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS cosmetic_items CASCADE;
+DROP TABLE IF EXISTS academic_years CASCADE;
+DROP TABLE IF EXISTS rankings CASCADE;
 
 CREATE TABLE cosmetic_items (
     id_item SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     price_points INT NOT NULL CHECK (price_points >= 0),
     description TEXT,
-    item_type TEXT NOT NULL CHECK (item_type IN ('title', 'badge', 'theme', 'cosmetic'))
+    item_type TEXT NOT NULL
 );
 
 CREATE TABLE users (
@@ -33,10 +32,15 @@ CREATE TABLE academic_years (
     id_academic_year TEXT PRIMARY KEY CHECK (id_academic_year ~ '^[0-9]{4}-[0-9]{4}$')
 );
 
+INSERT INTO academic_years (id_academic_year)
+VALUES ('2025-2026')
+ON CONFLICT DO NOTHING;
+
 CREATE TABLE courses (
     id_course SERIAL PRIMARY KEY,
     course_name TEXT NOT NULL UNIQUE,
-    faculty TEXT NOT NULL CHECK (faculty IN ('Informatics')),
+    faculty TEXT NOT NULL,
+    credits INT NOT NULL DEFAULT 5 CHECK (credits > 0),
     academic_year_id TEXT NOT NULL REFERENCES academic_years(id_academic_year)
 );
 
