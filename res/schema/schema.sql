@@ -1,109 +1,114 @@
--- Reset : si on veut recréer la base depuis 0 <=> le fichier efface tout avant de recréer 
-DROP TABLE IF EXISTS historique_classement CASCADE;
-DROP TABLE IF EXISTS inventaire_objets CASCADE;
+-- Reset: drop tables and function before creating them
+DROP FUNCTION IF EXISTS sync_resume_course_id() CASCADE;
+DROP TABLE IF EXISTS inventory_items CASCADE;
+DROP TABLE IF EXISTS ranking_history CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
-DROP TABLE IF EXISTS classements CASCADE;
+DROP TABLE IF EXISTS rankings CASCADE;
 DROP TABLE IF EXISTS evaluations CASCADE;
-DROP TABLE IF EXISTS resumes CASCADE;
-DROP TABLE IF EXISTS objets_cosmetiques CASCADE;
-DROP TABLE IF EXISTS utilisateurs CASCADE;
+DROP TABLE IF EXISTS summaries CASCADE;
 DROP TABLE IF EXISTS courses CASCADE;
+DROP TABLE IF EXISTS academic_years CASCADE;
+DROP TABLE IF EXISTS cosmetic_items CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
+CREATE TABLE cosmetic_items (
+    id_item SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    price_points INT NOT NULL CHECK (price_points >= 0),
+    description TEXT,
+    item_type TEXT NOT NULL CHECK (item_type IN ('title', 'badge', 'theme', 'cosmetic'))
+);
 
+CREATE TABLE users (
+    id_user SERIAL PRIMARY KEY,  -- PostgreSQL auto-incrementing ID
+    username TEXT UNIQUE NOT NULL,
+    registration_date DATE NOT NULL DEFAULT CURRENT_DATE CHECK (registration_date <= CURRENT_DATE),
+    email TEXT UNIQUE NOT NULL CHECK (email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    profile_level INT NOT NULL DEFAULT 1 CHECK (profile_level >= 1),
+    profile_points INT NOT NULL DEFAULT 0 CHECK (profile_points >= 0),
+    active_item_id INT REFERENCES cosmetic_items(id_item) ON DELETE SET NULL
+);
+
+CREATE TABLE academic_years (
+    id_academic_year TEXT PRIMARY KEY CHECK (id_academic_year ~ '^[0-9]{4}-[0-9]{4}$')
+);
 
 CREATE TABLE courses (
-    code_cours TEXT PRIMARY KEY,
-    nom TEXT,
-    faculte TEXT,
-    credits INT
+    id_course SERIAL PRIMARY KEY,
+    course_name TEXT NOT NULL UNIQUE,
+    faculty TEXT NOT NULL CHECK (faculty IN ('Informatics')),
+    academic_year_id TEXT NOT NULL REFERENCES academic_years(id_academic_year)
 );
 
-
-CREATE TABLE utilisateurs (
-    id_utilisateur  SERIAL PRIMARY KEY, --  PostgreSQL le génère automatiquement
-    nom_utilisateur TEXT UNIQUE NOT NULL,
-    email           TEXT UNIQUE NOT NULL,
-    date_inscription DATE NOT NULL DEFAULT CURRENT_DATE,
-    niveau          INT  NOT NULL DEFAULT 1 CHECK (niveau >= 1),
-    nombre_points   INT  NOT NULL DEFAULT 0  CHECK (nombre_points >= 0)
-);
-
-
-CREATE TABLE objets_cosmetiques (
-    id_objet    SERIAL PRIMARY KEY,
-    nom         TEXT NOT NULL,
-    type        TEXT NOT NULL CHECK (type IN ('badge', 'titre', 'theme', 'cosmetique')),
+CREATE TABLE summaries (
+    id_summary SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
     description TEXT,
-    prix        INT  NOT NULL CHECK (prix >= 0)
-);
-
-
-CREATE TABLE resumes (
-    id_resume        SERIAL PRIMARY KEY,
-    titre            TEXT    NOT NULL,
-    description      TEXT,
-    date_publication DATE    NOT NULL DEFAULT CURRENT_DATE,
-    version          INT     NOT NULL DEFAULT 1 CHECK (version >= 1),
-    visibilite       BOOLEAN NOT NULL DEFAULT TRUE,
-    note_moyenne     NUMERIC(3,2) CHECK (note_moyenne >= 0 AND note_moyenne <= 5),
-    id_utilisateur   INT     NOT NULL REFERENCES utilisateurs(id_utilisateur) ON DELETE CASCADE,
-    code_cours       TEXT    NOT NULL REFERENCES courses(code_cours),
-    CONSTRAINT unique_resume UNIQUE (id_utilisateur, code_cours, titre)
+    publication_date DATE NOT NULL DEFAULT CURRENT_DATE CHECK (publication_date <= CURRENT_DATE),
+    version TEXT NOT NULL,
+    visible BOOLEAN NOT NULL DEFAULT TRUE,
+    average_rating NUMERIC(3,2) CHECK (average_rating >= 0 AND average_rating <= 5),
+    user_id INT NOT NULL REFERENCES users(id_user),
+    course_id INT NOT NULL REFERENCES courses(id_course)
 );
 
 CREATE TABLE evaluations (
-    id_evaluation    SERIAL PRIMARY KEY,
-    note             INT  NOT NULL CHECK (note >= 0 AND note <= 5),
-    commentaire      TEXT,
-    date_evaluation  DATE NOT NULL DEFAULT CURRENT_DATE,
-    id_auteur        INT  NOT NULL REFERENCES utilisateurs(id_utilisateur),
-    id_resume        INT  NOT NULL REFERENCES resumes(id_resume) ON DELETE CASCADE,
-    UNIQUE (id_auteur, id_resume)
+    id_evaluation SERIAL PRIMARY KEY,
+    note INT NOT NULL CHECK (note >= 0 AND note <= 5),
+    comment TEXT,
+    evaluation_date DATE NOT NULL DEFAULT CURRENT_DATE CHECK (evaluation_date <= CURRENT_DATE),
+    user_id INT NOT NULL REFERENCES users(id_user),
+    summary_id INT NOT NULL REFERENCES summaries(id_summary) ON DELETE CASCADE,
+    UNIQUE (user_id, summary_id)
 );
-
 
 CREATE TABLE transactions (
-    id_transaction   SERIAL PRIMARY KEY,
-    type_transaction TEXT      NOT NULL CHECK (type_transaction IN ('publication', 'evaluation', 'achat', 'suppression')),
-    date_transaction TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    montant          INT       NOT NULL,
-    id_utilisateur   INT       NOT NULL REFERENCES utilisateurs(id_utilisateur),
-    id_resume        INT       REFERENCES resumes(id_resume),
-    id_evaluation    INT       REFERENCES evaluations(id_evaluation),
-    id_objet         INT       REFERENCES objets_cosmetiques(id_objet)
+    id_transaction SERIAL PRIMARY KEY,
+    amount INT NOT NULL,
+    transaction_type TEXT NOT NULL CHECK (transaction_type IN ('gain_evaluation', 'gain_summary', 'purchase_item')),
+    transaction_date DATE NOT NULL DEFAULT CURRENT_DATE CHECK (transaction_date <= CURRENT_DATE),
+    user_id INT NOT NULL REFERENCES users(id_user),
+    summary_id INT REFERENCES summaries(id_summary),
+    evaluation_id INT REFERENCES evaluations(id_evaluation),
+    item_id INT REFERENCES cosmetic_items(id_item),
+    CONSTRAINT chk_transaction_amount_sign CHECK (
+        (transaction_type IN ('gain_evaluation', 'gain_summary') AND amount > 0)
+        OR (transaction_type = 'purchase_item' AND amount < 0)
+    ),
+    CONSTRAINT chk_transaction_origin CHECK (
+        (transaction_type = 'gain_evaluation' AND evaluation_id IS NOT NULL)
+        OR (transaction_type = 'gain_summary' AND summary_id IS NOT NULL)
+        OR (transaction_type = 'purchase_item' AND item_id IS NOT NULL)
+    )
 );
 
--- relation possède + active 
-CREATE TABLE inventaire_objets (
-    id_utilisateur INT     NOT NULL REFERENCES utilisateurs(id_utilisateur),
-    id_objet       INT     NOT NULL REFERENCES objets_cosmetiques(id_objet),
-    date_achat     DATE    NOT NULL DEFAULT CURRENT_DATE,
-    actif          BOOLEAN NOT NULL DEFAULT FALSE,
-    PRIMARY KEY (id_utilisateur, id_objet)
+CREATE TABLE rankings (
+    id_ranking SERIAL PRIMARY KEY,
+    ranking_name TEXT NOT NULL UNIQUE CHECK (ranking_name ~ '^[0-9]{4}_[0-9]{4}$')
+);
+
+-- Junction table user - ranking
+CREATE TABLE ranking_history (
+    user_id INT NOT NULL REFERENCES users(id_user),
+    ranking_id INT NOT NULL REFERENCES rankings(id_ranking),
+    rank INT NOT NULL CHECK (rank >= 1),
+    period_points INT NOT NULL CHECK (period_points >= 0),
+    PRIMARY KEY (user_id, ranking_id)
 );
 
 
-CREATE TABLE classements (
-    id_classement SERIAL PRIMARY KEY,
-    type          TEXT NOT NULL CHECK (type IN ('mensuel', 'annuel')),
-    periode       TEXT NOT NULL,
-    UNIQUE (type, periode)
+-- Junction table user - cosmetic
+CREATE TABLE inventory_items (
+    user_id INT NOT NULL REFERENCES users(id_user),
+    item_id INT NOT NULL REFERENCES cosmetic_items(id_item),
+    PRIMARY KEY (user_id, item_id)
 );
 
 
-CREATE TABLE historique_classement (
-    id_historique  SERIAL PRIMARY KEY,
-    rang           INT NOT NULL CHECK (rang > 0),
-    points         INT NOT NULL,
-    id_utilisateur INT NOT NULL REFERENCES utilisateurs(id_utilisateur),
-    id_classement  INT NOT NULL REFERENCES classements(id_classement),
-    UNIQUE (id_utilisateur, id_classement)
-);
-
--- index pertinents (section 2 : création)
-CREATE INDEX idx_resumes_cours         ON resumes(code_cours);
-CREATE INDEX idx_resumes_utilisateur   ON resumes(id_utilisateur);
-CREATE INDEX idx_evaluations_resume    ON evaluations(id_resume);
-CREATE INDEX idx_evaluations_auteur    ON evaluations(id_auteur);
-CREATE INDEX idx_transactions_user     ON transactions(id_utilisateur);
-CREATE INDEX idx_inventaire_user       ON inventaire_objets(id_utilisateur);
+-- Pertinent indexes (section 2 in pdf)
+CREATE INDEX idx_summaries_user ON summaries(user_id);
+CREATE INDEX idx_summaries_course ON summaries(course_id);
+CREATE INDEX idx_evaluations_summary ON evaluations(summary_id);
+CREATE INDEX idx_evaluations_user ON evaluations(user_id);
+CREATE INDEX idx_transactions_user ON transactions(user_id);
+CREATE INDEX idx_inventory_user ON inventory_items(user_id);
