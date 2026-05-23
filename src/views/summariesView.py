@@ -31,7 +31,8 @@ class SummariesView(QWidget):
         self.btn_publish.clicked.connect(self.view_publish)
         self.btn_edit.clicked.connect(self.view_edit)
         self.btn_delete.clicked.connect(self.view_delete)
-        self.btn_back.clicked.connect(self.main_window.go_home)
+        if self.main_window is not None:
+            self.btn_back.clicked.connect(self.main_window.go_home)
         layout.addWidget(self.btn_list)
         layout.addWidget(self.btn_evaluate)
         layout.addWidget(self.btn_list_mines)
@@ -45,7 +46,7 @@ class SummariesView(QWidget):
         if not Session.is_authenticated():
             QMessageBox.warning(self, "Erreur", "Pas connecté")
             return
-        course_name, ok = QInputDialog.getText(self, "Cours", "Nom du cours : ")
+        course_name, ok = QInputDialog.getText(self, "Cours", "Code du cours : ")
         if not ok:
             return
         summaries = self.service.see_course_summaries(course_name.strip())
@@ -55,9 +56,7 @@ class SummariesView(QWidget):
         text = ""
         for s in summaries:
             note = s[5] if s[5] is not None else "Rien"
-            text += (
-                f"[{s[0]}] {s[1]}\nAuteur : {s[6]}\nVersion : {s[4]}\nNote : {note}\n\n"
-            )
+            text += f"[{s[0]}] {s[1]}\nAuteur : {s[6]}\nCours : {s[7]} - {s[8]}\nVersion : {s[4]}\nNote : {note}\n\n"
         QMessageBox.information(self, "Résumés du cours", text)
 
     def view_evaluate(self):
@@ -104,7 +103,7 @@ class SummariesView(QWidget):
         text = ""
         for s in summaries:
             note = s[5] if s[5] is not None else "Rien"
-            text += f"[{s[0]}] {s[1]}\n{s[2]}\n{s[3]}\n{s[4]} | note: {note}\n\n"
+            text += f"ID: [{s[0]}]\nTitre: {s[1]}\n{s[2]}\nCours : {s[6]} - {s[7]}\nDate de publication: {s[3]}\nVerison: {s[4]}\nNote: {note}\n\n"
         QMessageBox.information(self, "Mes résumés", text)
 
     def view_publish(self):
@@ -112,7 +111,7 @@ class SummariesView(QWidget):
             QMessageBox.warning(self, "Erreur", "Pas connecté")
             return
         username = Session.user
-        course_name, ok1 = QInputDialog.getText(self, "Cours", "Nom du cours :")
+        course_name, ok1 = QInputDialog.getText(self, "Cours", "Code du cours :")
         if not ok1:
             return
         title, ok2 = QInputDialog.getText(self, "Titre", "Titre :")
@@ -122,7 +121,11 @@ class SummariesView(QWidget):
         if not ok3:
             return
         result = self.service.publish(username, course_name.strip(), title, desc)
-        if result is None:
+        if result == "invalid_fields":
+            QMessageBox.warning(
+                self, "Erreur", "Le titre et la description ne peuvent pas être vides."
+            )
+        elif result is None:
             QMessageBox.warning(self, "Erreur", "Utilisateur introuvable.")
         elif result is False:
             QMessageBox.warning(self, "Erreur", "Cours invalide.")

@@ -38,7 +38,8 @@ ON CONFLICT DO NOTHING;
 
 CREATE TABLE courses (
     id_course SERIAL PRIMARY KEY,
-    course_name TEXT NOT NULL UNIQUE,
+    course_title TEXT NOT NULL UNIQUE,
+    course_code TEXT NOT NULL UNIQUE,
     faculty TEXT NOT NULL,
     credits INT NOT NULL DEFAULT 5 CHECK (credits > 0),
     academic_year_id TEXT NOT NULL REFERENCES academic_years(id_academic_year)

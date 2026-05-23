@@ -8,15 +8,17 @@ class CoursesRepository:
         """Insert multiple courses from parsed data."""
         connection = get_connection()
         cursor = connection.cursor()
+
         for course in courses:
             cursor.execute(
                 """
-                INSERT INTO courses (course_name, faculty, credits, academic_year_id)
-                VALUES (%s, %s, %s, %s)
-                ON CONFLICT (course_name) DO NOTHING;
+                INSERT INTO courses (course_code, course_title, faculty, credits, academic_year_id)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (course_code) DO NOTHING;
                 """,
                 (
-                    course["course_name"],
+                    course["course_code"],
+                    course["course_title"],
                     course["faculty"],
                     course.get("credits", 5),
                     course["academic_year_id"],
@@ -28,14 +30,14 @@ class CoursesRepository:
         connection.close()
 
     def get_all(self):
-        """Return all courses sorted by name."""
+        """Return all courses sorted by ID."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT id_course, course_name, faculty, credits, academic_year_id
+            SELECT id_course, course_code, course_title, faculty, credits, academic_year_id
             FROM courses
-            ORDER BY course_name;
+            ORDER BY id_course;
             """
         )
         rows = cursor.fetchall()
@@ -47,21 +49,22 @@ class CoursesRepository:
         self, course_code, course_title, faculty, academic_year_id, credits=5
     ):
         """Insert one course and return True if inserted."""
-        course_name = (
-            f"{course_code.strip()} - {course_title.strip()}"
-            if course_code and course_title
-            else course_title.strip()
-        )
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            INSERT INTO courses (course_name, faculty, credits, academic_year_id)
-            VALUES (%s, %s, %s, %s)
-            ON CONFLICT (course_name) DO NOTHING
+            INSERT INTO courses (course_code, course_title, faculty, credits, academic_year_id)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (course_code) DO NOTHING
             RETURNING id_course;
             """,
-            (course_name, faculty, credits, academic_year_id),
+            (
+                course_code.strip(),
+                course_title.strip(),
+                faculty,
+                credits,
+                academic_year_id,
+            ),
         )
 
         result = cursor.fetchone()

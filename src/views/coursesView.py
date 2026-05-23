@@ -31,7 +31,8 @@ class CoursesView(QWidget):
         self.btn_back = QPushButton("Retour")
         self.btn_list.clicked.connect(self.view_list)
         self.btn_add.clicked.connect(self.view_add)
-        self.btn_back.clicked.connect(self.main_window.go_home)
+        if self.main_window is not None:
+            self.btn_back.clicked.connect(self.main_window.go_home)
         layout.addWidget(self.btn_list)
         layout.addWidget(self.btn_add)
         layout.addWidget(self.btn_back)
@@ -47,7 +48,9 @@ class CoursesView(QWidget):
             QMessageBox.information(self, "Cours", "Aucun cours disponible.")
             return
 
-        text = "\n".join(f"{c[0]} | {c[1]} | {c[2]} | {c[3]}" for c in courses)
+        text = "\n".join(
+            f"{c[0]} | {c[1]} | {c[2]} | {c[3]} | {c[4]} | {c[5]}" for c in courses
+        )
 
         dialog = QDialog(self)
         dialog.setWindowTitle("Liste des cours")
@@ -74,7 +77,7 @@ class CoursesView(QWidget):
         code, ok1 = QInputDialog.getText(self, "Code", "Code du cours:")
         if not ok1:
             return
-        name, ok2 = QInputDialog.getText(self, "Nom", "Nom du cours:")
+        title, ok2 = QInputDialog.getText(self, "Titre", "Titre du cours:")
         if not ok2:
             return
         faculty, ok3 = QInputDialog.getText(self, "Faculté", "Faculté:")
@@ -86,9 +89,21 @@ class CoursesView(QWidget):
         if not ok4:
             return
         inserted = self.service.add_course(
-            code.strip(), name.strip(), faculty.strip(), academic_year.strip()
+            code.strip(), title.strip(), faculty.strip(), academic_year.strip()
         )
-        if inserted:
+        if inserted == "invalid_course_code":
+            QMessageBox.warning(
+                self,
+                "Erreur",
+                "Le code doit commencer par 4 lettres majuscules puis 3 chiffres.\nExemple : INFO303",
+            )
+        elif inserted == "invalid_faculty":
+            QMessageBox.warning(self, "Erreur", "Faculté invalide.")
+        elif inserted == "missing_fields":
+            QMessageBox.warning(self, "Erreur", "Tous les champs sont obligatoires.")
+        elif inserted == "already_exists":
+            QMessageBox.warning(self, "Erreur", "Ce cours existe déjà.")
+        elif inserted:
             QMessageBox.information(self, "OK", "Cours ajouté")
         else:
             QMessageBox.warning(

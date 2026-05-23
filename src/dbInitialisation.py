@@ -28,13 +28,7 @@ def init_data():
     evaluations_parser = EvaluationsParser(EVALUATIONS_FILE)
     shop_parser = ShopParser(SHOP_FILE)
 
-    course_lookup = {
-        course["course_code"]: course["course_name"]
-        for course in courses_parser.get_courses()
-        if course.get("course_code") and course.get("course_name")
-    }
-    summaries_parser = SummariesParser(SUMMARIES_FILE, course_lookup)
-
+    summaries_parser = SummariesParser(SUMMARIES_FILE)
     courses_repo = CoursesRepository()
     users_repo = UsersRepository()
     summaries_repo = SummariesRepository()

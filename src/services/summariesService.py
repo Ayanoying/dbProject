@@ -15,28 +15,35 @@ class SummariesService:
         self.points_repo = PointsRepository()
         self.evaluations_repo = EvaluationsRepository()
 
-    def publish(self, username, course_name, title, description):
+    def publish(self, username, course_code, title, description):
         """Publish a summary and grant summary points."""
         user = self.users_repo.find_by_username(username)
         if not user:
             return None
 
+        title = (title or "").strip()
+        description = (description or "").strip()
+        course_code = (course_code or "").strip()
+
+        if not title or not description:
+            return "invalid_fields"
+
         courses = self.courses_repo.get_all()
-        names = [c[1] for c in courses]
-        if course_name not in names:
+        codes = [c[1] for c in courses]
+        if course_code not in codes:
             return False
 
         user_id = user[0]
-        summary_id = self.repo.publish(title, description, user_id, course_name)
+        summary_id = self.repo.publish(title, description, user_id, course_code)
         if summary_id is None:
             return False
 
         self.points_repo.add_transaction("gain_summary", +50, user_id, summary_id)
         return summary_id
 
-    def see_course_summaries(self, course_name):
+    def see_course_summaries(self, course_code):
         """Return visible summaries for one course."""
-        return self.repo.get_by_course(course_name)
+        return self.repo.get_by_course(course_code)
 
     def see_my_summaries(self, username):
         """Return summaries authored by the given user."""

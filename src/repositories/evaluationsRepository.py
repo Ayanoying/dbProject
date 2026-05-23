@@ -15,7 +15,7 @@ class EvaluationsRepository:
                 SELECT s.id_summary
                 FROM summaries s
                 JOIN courses c ON s.course_id = c.id_course
-                WHERE c.course_name = %s AND s.title = %s
+                WHERE c.course_code = %s AND s.title = %s
                 LIMIT 1;
                 """,
                 (evaluation["resume"]["cours"], evaluation["resume"]["titre"]),

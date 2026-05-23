@@ -5,15 +5,15 @@ class SummariesRepository:
     """Data access for summaries."""
 
     @staticmethod
-    def _find_course_id(cursor, course_name):
-        """Return a course id from a course name."""
+    def _find_course_id(cursor, course_code):
+        """Return a course id from a course code."""
         cursor.execute(
             """
             SELECT id_course
             FROM courses
-            WHERE course_name = %s;
+            WHERE course_code = %s;
             """,
-            (course_name,),
+            (course_code,),
         )
         row = cursor.fetchone()
         return row[0] if row else None
@@ -36,7 +36,8 @@ class SummariesRepository:
             if user_row is None:
                 continue
 
-            course_id = self._find_course_id(cursor, summary["course"])
+            course_code = summary.get("course_code")
+            course_id = self._find_course_id(cursor, course_code)
             if course_id is None:
                 continue
 
@@ -71,12 +72,12 @@ class SummariesRepository:
         cursor.close()
         connection.close()
 
-    def publish(self, title, description, user_id, course_name):
+    def publish(self, title, description, user_id, course_code):
         """Publish a new summary for one user and one course."""
         connection = get_connection()
         cursor = connection.cursor()
 
-        course_id = self._find_course_id(cursor, course_name)
+        course_id = self._find_course_id(cursor, course_code)
         if course_id is None:
             cursor.close()
             connection.close()
@@ -91,7 +92,14 @@ class SummariesRepository:
             (title, description, "v1", user_id, course_id),
         )
 
-        summary_id = cursor.fetchone()[0]
+        row = cursor.fetchone()
+        if row is None:
+            connection.rollback()
+            cursor.close()
+            connection.close()
+            return None
+
+        summary_id = row[0]
         connection.commit()
         cursor.close()
         connection.close()
@@ -114,20 +122,20 @@ class SummariesRepository:
         connection.close()
         return result
 
-    def get_by_course(self, course_name):
-        """Return all visible summaries for one course name."""
+    def get_by_course(self, course_code):
+        """Return all visible summaries for one course code."""
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT s.id_summary, s.title, s.description, s.publication_date, s.version, s.average_rating, u.username
+            SELECT s.id_summary, s.title, s.description, s.publication_date, s.version, s.average_rating, u.username, c.course_code, c.course_title
             FROM summaries s
             JOIN users u ON s.user_id = u.id_user
             JOIN courses c ON s.course_id = c.id_course
-            WHERE c.course_name = %s AND s.visible = TRUE
+            WHERE c.course_code = %s AND s.visible = TRUE
             ORDER BY s.publication_date DESC;
             """,
-            (course_name,),
+            (course_code,),
         )
         rows = cursor.fetchall()
         cursor.close()
@@ -138,11 +146,11 @@ class SummariesRepository:
         """Return all summaries authored by one user."""
         connection = get_connection()
         cursor = connection.cursor()
-        # TODO change course name by description
         cursor.execute(
             """
-            SELECT s.id_summary, s.title, s.description, s.publication_date, s.version, s.average_rating
+            SELECT s.id_summary, s.title, s.description, s.publication_date, s.version, s.average_rating, c.course_code, c.course_title
             FROM summaries s
+            JOIN courses c ON s.course_id = c.id_course
             WHERE s.user_id = %s
             ORDER BY s.publication_date DESC;
             """,

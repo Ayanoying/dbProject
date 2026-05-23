@@ -21,13 +21,14 @@ class CoursesParser:
             reader = csv.DictReader(f)
             for row in reader:
                 course_code = (row.get("code_cours") or "Code inconnu").strip()
-                course_name = (row.get("nom") or "Nom inconnu").strip()
+                course_title = (row.get("nom") or "Nom inconnu").strip()
                 faculty = (row.get("faculte") or "Faculté inconnue").strip()
                 credits_text = (row.get("credits") or "Credits inconnus").strip()
                 credits = int(credits_text) if credits_text else DEFAULT_CREDITS
                 courses.append(
                     {
-                        "course_name": f"{course_code} - {course_name}",
+                        "course_code": course_code,
+                        "course_title": course_title,
                         "faculty": faculty
                         if is_in_faculty_set(faculty)
                         else "Inconnue",
