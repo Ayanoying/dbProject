@@ -16,18 +16,22 @@ class ShopParser:
         root = tree.getroot()
         items = []
 
+        if root is None:
+            return items
+
         for item in root.findall("objet"):
-            item_id = item.get("id") or "ID inconnu"
+            item_id = item.get("id")
             name = (item.findtext("nom") or "Nom inconnu").strip()
             item_type = (item.findtext("type") or "Type inconnu").strip()
             description = (
                 item.findtext("description") or "Description inconnue"
             ).strip()
             price_text = (item.findtext("prix") or "Prix inconnu").strip()
+            id_item = int(item_id) if item_id and item_id.isdigit() else None
 
             items.append(
                 {
-                    "id_item": int(item_id) if item_id.isdigit() else item_id,
+                    "id_item": id_item,
                     "name": name,
                     "item_type": item_type
                     if is_in_item_type_set(item_type)

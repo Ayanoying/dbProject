@@ -40,7 +40,8 @@ class ShopRepository:
                         it.get("price_points"),
                     ),
                 )
-            else:
+
+            else:  # If id is null, postgreSQL will auto assign one
                 cursor.execute(
                     """
                     INSERT INTO cosmetic_items (name, item_type, description, price_points)
