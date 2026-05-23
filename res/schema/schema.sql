@@ -110,10 +110,14 @@ CREATE TABLE inventory_items (
 );
 
 
--- Pertinent indexes (section 2 in pdf)
-CREATE INDEX idx_summaries_user ON summaries(user_id);
-CREATE INDEX idx_summaries_course ON summaries(course_id);
+-- Pertinent indexes 
+CREATE INDEX idx_summaries_visible_user_date
+    ON summaries(user_id, publication_date DESC)
+    WHERE visible = TRUE;
+
+CREATE INDEX idx_summaries_visible_course_date
+    ON summaries(course_id, publication_date DESC)
+    WHERE visible = TRUE;
+
 CREATE INDEX idx_evaluations_summary ON evaluations(summary_id);
-CREATE INDEX idx_evaluations_user ON evaluations(user_id);
-CREATE INDEX idx_transactions_user ON transactions(user_id);
-CREATE INDEX idx_inventory_user ON inventory_items(user_id);
+CREATE INDEX idx_transactions_user_date ON transactions(user_id, transaction_date DESC);
