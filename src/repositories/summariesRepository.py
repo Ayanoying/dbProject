@@ -151,7 +151,7 @@ class SummariesRepository:
             SELECT s.id_summary, s.title, s.description, s.publication_date, s.version, s.average_rating, c.course_code, c.course_title
             FROM summaries s
             JOIN courses c ON s.course_id = c.id_course
-            WHERE s.user_id = %s
+            WHERE s.user_id = %s AND s.visible = TRUE
             ORDER BY s.publication_date DESC;
             """,
             (user_id,),
@@ -181,19 +181,27 @@ class SummariesRepository:
         return result is not None
 
     def delete(self, summary_id, user_id):
-        """Delete one summary when it belongs to the user."""
+        """Soft delete one summary when it belongs to the user."""
         connection = get_connection()
         cursor = connection.cursor()
-        cursor.execute(
-            """
-            DELETE FROM summaries
-            WHERE id_summary = %s AND user_id = %s
-            RETURNING id_summary;
-            """,
-            (summary_id, user_id),
-        )
-        result = cursor.fetchone()
-        connection.commit()
-        cursor.close()
-        connection.close()
-        return result is not None
+        try:
+            cursor.execute(
+                """
+                UPDATE summaries
+                SET visible = FALSE
+                WHERE id_summary = %s AND user_id = %s AND visible = TRUE
+                RETURNING id_summary;
+                """,
+                (summary_id, user_id),
+            )
+            result = cursor.fetchone()
+            connection.commit()
+            return result is not None
+
+        except Exception:
+            connection.rollback()
+            raise
+
+        finally:
+            cursor.close()
+            connection.close()
