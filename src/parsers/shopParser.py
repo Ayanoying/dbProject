@@ -17,24 +17,25 @@ class ShopParser:
         items = []
 
         for item in root.findall("objet"):
-            item_id = item.get("id")
-            name = (item.findtext("nom") or "").strip()
-            item_type = (item.findtext("type") or "").strip()
-            description = (item.findtext("description") or "").strip() or None
-            price_text = (item.findtext("prix") or "").strip()
-
-            if not name or not item_type or not price_text:
-                continue
+            item_id = item.get("id") or "ID inconnu"
+            name = (item.findtext("nom") or "Nom inconnu").strip()
+            item_type = (item.findtext("type") or "Type inconnu").strip()
+            description = (
+                item.findtext("description") or "Description inconnue"
+            ).strip()
+            price_text = (item.findtext("prix") or "Prix inconnu").strip()
 
             items.append(
                 {
-                    "id_item": int(item_id) if item_id else None,
+                    "id_item": int(item_id) if item_id.isdigit() else item_id,
                     "name": name,
                     "item_type": item_type
                     if is_in_item_type_set(item_type)
                     else "Misc",
                     "description": description,
-                    "price_points": int(price_text),
+                    "price_points": int(price_text)
+                    if price_text.isdigit()
+                    else price_text,
                 }
             )
 

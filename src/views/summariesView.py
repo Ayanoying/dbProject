@@ -27,7 +27,7 @@ class SummariesView(QWidget):
         self.btn_back = QPushButton("Retour")
         self.btn_list.clicked.connect(self.view_list)
         self.btn_evaluate.clicked.connect(self.view_evaluate)
-        self.btn_list_mines.clicked.connect(self.view_list_mines)
+        self.btn_list_mines.clicked.connect(self.view_own_summaries)
         self.btn_publish.clicked.connect(self.view_publish)
         self.btn_edit.clicked.connect(self.view_edit)
         self.btn_delete.clicked.connect(self.view_delete)
@@ -92,7 +92,7 @@ class SummariesView(QWidget):
         else:
             QMessageBox.information(self, "OK", f"Évaluation ajoutée ! ID : {result}")
 
-    def view_list_mines(self):
+    def view_own_summaries(self):
         if not Session.is_authenticated():
             QMessageBox.warning(self, "Erreur", "Pas connecté")
             return

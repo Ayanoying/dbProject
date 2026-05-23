@@ -17,33 +17,32 @@ class SummariesParser:
         summaries = []
 
         for u in root.findall("utilisateur"):
-            author = (u.findtext("nomUtilisateur") or "").strip()
+            author = (u.findtext("nomUtilisateur") or "Auteur inconnu").strip()
             summaries_node = u.find("resumes")
 
             if not author or summaries_node is None:
                 continue
 
             for r in summaries_node.findall("resume"):
-                course = (r.findtext("cours") or "").strip()
-                title = (r.findtext("titre") or "").strip()
-                publication_date = (r.findtext("datePublication") or "").strip()
-                note_txt = (r.findtext("noteMoyenne") or "").strip()
-
-                if not course or not title:
-                    continue
-
-                average_note = float(note_txt) if note_txt else None
+                course = (r.findtext("cours") or "Cours inconnu").strip()
+                title = (r.findtext("titre") or "Titre inconnu").strip()
+                publication_date = (
+                    r.findtext("datePublication") or "Date de publication inconnue"
+                ).strip()
+                average_note = (r.findtext("noteMoyenne") or "Note inconnue").strip()
 
                 summaries.append(
                     {
                         "author": author,
                         "course": self.course_lookup.get(course, course),
                         "title": title,
-                        "description": None,
+                        "description": "Aucune description",  # Static because not provided in XML
                         "publication_date": publication_date
                         if publication_date
                         else None,
-                        "average_rating": average_note,
+                        "average_rating": float(average_note)
+                        if average_note.replace(".", "", 1).isdigit()
+                        else average_note,
                     }
                 )
 

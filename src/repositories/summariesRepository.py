@@ -138,11 +138,11 @@ class SummariesRepository:
         """Return all summaries authored by one user."""
         connection = get_connection()
         cursor = connection.cursor()
+        # TODO change course name by description
         cursor.execute(
             """
-            SELECT s.id_summary, s.title, c.course_name, s.publication_date, s.version, s.average_rating
+            SELECT s.id_summary, s.title, s.description, s.publication_date, s.version, s.average_rating
             FROM summaries s
-            JOIN courses c ON s.course_id = c.id_course
             WHERE s.user_id = %s
             ORDER BY s.publication_date DESC;
             """,

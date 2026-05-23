@@ -14,14 +14,29 @@ class UsersParser:
         tree = ET.parse(self.xml_path)
         root = tree.getroot()
         users = []
+
         for u in root.findall("utilisateur"):
+            username = (
+                u.findtext("nomUtilisateur") or "Nom d'utilisateur inconnu"
+            ).strip()
+            email = (u.findtext("email") or "Email inconnu").strip()
+            registration_date = (
+                u.findtext("dateInscription") or "Date d'inscription inconnue"
+            ).strip()
+            profile_level = int(
+                u.findtext("niveau") or 1
+            )  # Default to level 1 if not provided
+            profile_points = int(
+                u.findtext("points") or 0
+            )  # Default to 0 points if not provided
+
             users.append(
                 {
-                    "username": (u.findtext("nomUtilisateur") or "").strip(),
-                    "email": (u.findtext("email") or "").strip(),
-                    "registration_date": u.findtext("dateInscription"),
-                    "profile_level": int(u.findtext("niveau") or 1),
-                    "profile_points": int(u.findtext("points") or 0),
+                    "username": username,
+                    "email": email,
+                    "registration_date": registration_date,
+                    "profile_level": profile_level,
+                    "profile_points": profile_points,
                 }
             )
         return users
