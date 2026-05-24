@@ -1,5 +1,5 @@
 from repositories.coursesRepository import CoursesRepository
-from utils.validators import is_faculty_valid, is_course_code_valid
+from utils.validators import is_faculty_valid, is_course_code_valid, is_date_valid
 
 
 class CoursesService:
@@ -20,13 +20,15 @@ class CoursesService:
         faculty = (faculty or "").strip()
         academic_year_id = (academic_year_id or "").strip()
 
-        if not course_code or not course_title or not faculty or not academic_year_id:
+        if "" in (course_code, course_title, faculty, academic_year_id):
             return "missing_fields"
 
         if not is_course_code_valid(course_code):
             return "invalid_course_code"
         if not is_faculty_valid(faculty):
             return "invalid_faculty"
+        if not is_date_valid(academic_year_id):
+            return "invalid_academic_year"
         inserted = self.repo.add_course(
             course_code, course_title, faculty, academic_year_id
         )

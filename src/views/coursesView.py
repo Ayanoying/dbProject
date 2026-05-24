@@ -47,7 +47,7 @@ class CoursesView(QWidget):
         if not courses:
             QMessageBox.information(self, "Cours", "Aucun cours disponible.")
             return
-
+        header = "ID | Code | Titre | Faculté | Crédits | Année académique"
         text = "\n".join(
             f"{c[0]} | {c[1]} | {c[2]} | {c[3]} | {c[4]} | {c[5]}" for c in courses
         )
@@ -60,7 +60,7 @@ class CoursesView(QWidget):
 
         text_edit = QTextEdit()
         text_edit.setReadOnly(True)
-        text_edit.setPlainText(text)
+        text_edit.setPlainText(f"{header}\n{text}")
 
         close_btn = QPushButton("Fermer")
         close_btn.clicked.connect(dialog.accept)
@@ -96,6 +96,12 @@ class CoursesView(QWidget):
                 self,
                 "Erreur",
                 "Le code doit commencer par 4 lettres majuscules puis 3 chiffres.\nExemple : INFO303",
+            )
+        elif inserted == "invalid_academic_year":
+            QMessageBox.warning(
+                self,
+                "Erreur",
+                "L'année académique doit être au format YYYY-YYYY.\nExemple : 2025-2026",
             )
         elif inserted == "invalid_faculty":
             QMessageBox.warning(self, "Erreur", "Faculté invalide.")

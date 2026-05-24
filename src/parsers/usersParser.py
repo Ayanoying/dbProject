@@ -28,8 +28,8 @@ class UsersParser:
                 username = (u.findtext("nomUtilisateur") or "").strip()
                 email = (u.findtext("email") or "").strip()
                 registration_date = (u.findtext("dateInscription") or "").strip()
-                profile_level_str = (u.findtext("niveauProfil") or "").strip()
-                profile_points_str = (u.findtext("pointsProfil") or "").strip()
+                profile_level_str = (u.findtext("niveau") or "").strip()
+                profile_points_str = (u.findtext("points") or "").strip()
 
                 if False in (
                     is_created_username_valid(username),

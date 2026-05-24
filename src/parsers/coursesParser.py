@@ -20,7 +20,7 @@ class CoursesParser:
         with open(self.file_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                course_code_str = (row.get("code") or "").strip()
+                course_code_str = (row.get("code_cours") or "").strip()
                 course_title_str = (row.get("nom") or DEFAULT_COURSE_TITLE).strip()
                 faculty_str = (row.get("faculte") or "").strip()
                 credits_str = (row.get("credits") or "").strip()

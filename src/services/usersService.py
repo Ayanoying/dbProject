@@ -19,10 +19,8 @@ class UsersService:
             int: newly created user id.
             str: one of `missing_fields`, `invalid_email`, `already_exists`, `db_error`.
         """
-        username = (username or "").strip()
-        email = (email or "").strip()
 
-        if not username or not email:
+        if "" in (username, email):
             return "missing_fields"
 
         if not is_email_valid(email):
@@ -54,7 +52,7 @@ class UsersService:
 
         active_item = ""
         active_item_id = user[6]
-        if active_item_id is not None:
+        if active_item_id:
             active_item = self.shop_repo.get_item_by_id(active_item_id)
             if active_item:
                 item_name = active_item[1]
