@@ -13,6 +13,7 @@ from views.usersView import UsersView
 from views.coursesView import CoursesView
 from views.summariesView import SummariesView
 from views.shopView import ShopView
+from views.leaderboardView import LeaderboardView
 from views.queriesView import QueriesView
 from session import Session
 
@@ -32,6 +33,7 @@ class HomePage(QWidget):
         btn_shop = QPushButton("Boutique")
         btn_queries = QPushButton("Centre des Requêtes")
         btn_triche = QPushButton("Entrer un code de points")
+        btn_leaderboard = QPushButton("Classement")
         btn_logout = QPushButton("Se déconnecter")
 
         btn_users.clicked.connect(parent_main.open_users)
@@ -40,6 +42,7 @@ class HomePage(QWidget):
         btn_shop.clicked.connect(parent_main.open_shop)
         btn_queries.clicked.connect(parent_main.open_queries)
         btn_triche.clicked.connect(parent_main.add_points)
+        btn_leaderboard.clicked.connect(parent_main.open_leaderboard)
         btn_logout.clicked.connect(parent_main.logout)
 
         layout.addWidget(btn_users)
@@ -48,6 +51,7 @@ class HomePage(QWidget):
         layout.addWidget(btn_shop)
         layout.addWidget(btn_queries)
         layout.addWidget(btn_triche)
+        layout.addWidget(btn_leaderboard)
         layout.addWidget(btn_logout)
 
 
@@ -70,6 +74,7 @@ class MainView(QMainWindow):
         self.summaries_page = SummariesView(self)
         self.shop_page = ShopView(self)
         self.queries_page = QueriesView(self)
+        self.leaderboard_page = LeaderboardView(self)
 
         self.stack.addWidget(self.queries_page)
         self.stack.addWidget(self.home_page)
@@ -77,6 +82,7 @@ class MainView(QMainWindow):
         self.stack.addWidget(self.courses_page)
         self.stack.addWidget(self.summaries_page)
         self.stack.addWidget(self.shop_page)
+        self.stack.addWidget(self.leaderboard_page)
 
         self.stack.setCurrentWidget(self.home_page)
 
@@ -91,6 +97,9 @@ class MainView(QMainWindow):
 
     def open_shop(self):
         self.stack.setCurrentWidget(self.shop_page)
+    
+    def open_leaderboard(self):
+        self.stack.setCurrentWidget(self.leaderboard_page)
 
     def open_queries(self):
         self.stack.setCurrentWidget(self.queries_page)
