@@ -1,8 +1,7 @@
-import re
-
 from repositories.shopRepository import ShopRepository
 from repositories.usersRepository import UsersRepository
 from repositories.pointsRepository import PointsRepository
+from utils.validators import is_email_valid
 
 
 class UsersService:
@@ -26,7 +25,7 @@ class UsersService:
         if not username or not email:
             return "missing_fields"
 
-        if not re.match(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$", email):
+        if not is_email_valid(email):
             return "invalid_email"
 
         existing_username = self.repo.find_by_username(username)

@@ -9,6 +9,15 @@ class CoursesRepository:
         connection = get_connection()
         cursor = connection.cursor()
 
+        # Default academic year inserted because not provided
+        cursor.execute(
+            """
+            INSERT INTO academic_years (id_academic_year)
+            VALUES ('2025-2026')
+            ON CONFLICT DO NOTHING;
+            """
+        )
+
         for course in courses:
             cursor.execute(
                 """

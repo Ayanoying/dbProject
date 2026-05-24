@@ -1,5 +1,5 @@
 from repositories.coursesRepository import CoursesRepository
-from utils.validators import is_in_faculty_set, is_valid_course_code
+from utils.validators import is_faculty_valid, is_course_code_valid
 
 
 class CoursesService:
@@ -23,9 +23,9 @@ class CoursesService:
         if not course_code or not course_title or not faculty or not academic_year_id:
             return "missing_fields"
 
-        if not is_valid_course_code(course_code):
+        if not is_course_code_valid(course_code):
             return "invalid_course_code"
-        if not is_in_faculty_set(faculty):
+        if not is_faculty_valid(faculty):
             return "invalid_faculty"
         inserted = self.repo.add_course(
             course_code, course_title, faculty, academic_year_id

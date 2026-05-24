@@ -1,5 +1,9 @@
 from defusedxml import ElementTree as ET
-from utils.validators import is_in_item_type_set
+from utils.validators import is_item_type_valid, is_item_id_valid, is_positive_int
+
+
+DEFAULT_DESCRIPTION = "Description inconnue"
+DEFAULT_ITEM_NAME = "Nom d'objet inconnu"
 
 
 class ShopParser:
@@ -20,26 +24,27 @@ class ShopParser:
             return items
 
         for item in root.findall("objet"):
-            item_id = item.get("id")
-            name = (item.findtext("nom") or "Nom inconnu").strip()
-            item_type = (item.findtext("type") or "Type inconnu").strip()
-            description = (
-                item.findtext("description") or "Description inconnue"
+            item_id_str = (item.get("id") or "").strip()
+            item_name_str = (item.findtext("nom") or DEFAULT_ITEM_NAME).strip()
+            item_type_str = (item.findtext("type") or "").strip()
+            item_price_str = (item.findtext("prix") or "").strip()
+            item_description_str = (
+                item.findtext("description") or DEFAULT_DESCRIPTION
             ).strip()
-            price_text = (item.findtext("prix") or "Prix inconnu").strip()
-            id_item = int(item_id) if item_id and item_id.isdigit() else None
 
+            if False in (
+                is_item_type_valid(item_type_str),
+                is_item_id_valid(item_id_str),
+                is_positive_int(item_price_str),
+            ):
+                continue
             items.append(
                 {
-                    "id_item": id_item,
-                    "name": name,
-                    "item_type": item_type
-                    if is_in_item_type_set(item_type)
-                    else "Misc",
-                    "description": description,
-                    "price_points": int(price_text)
-                    if price_text.isdigit()
-                    else price_text,
+                    "id_item": int(item_id_str),
+                    "name": item_name_str,
+                    "item_type": item_type_str,
+                    "description": item_description_str,
+                    "price_points": int(item_price_str),
                 }
             )
 

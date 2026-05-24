@@ -1,5 +1,10 @@
 from defusedxml import ElementTree as ET
 
+from utils.validators import is_course_code_valid, is_average_note_valid, is_date_valid
+
+DEFAULT_COURSE_TITLE = "Titre de cours inconnu"
+DEFAULT_SUMMARY_DESCRIPTION = "Aucune description"
+
 
 class SummariesParser:
     """Parse summaries XML data from user files."""
@@ -18,32 +23,33 @@ class SummariesParser:
         summaries = []
 
         for u in root.findall("utilisateur"):
-            author = (u.findtext("nomUtilisateur") or "Auteur inconnu").strip()
+            author = u.findtext("nomUtilisateur")
             summaries_node = u.find("resumes")
 
             if not author or summaries_node is None:
                 continue
 
             for r in summaries_node.findall("resume"):
-                course_code = (r.findtext("cours") or "Cours inconnu").strip()
-                title = (r.findtext("titre") or "Titre inconnu").strip()
-                publication_date = (
-                    r.findtext("datePublication") or "Date de publication inconnue"
-                ).strip()
-                average_note = (r.findtext("noteMoyenne") or "Note inconnue").strip()
+                course_code_str = (r.findtext("cours") or "").strip()
+                title_str = (r.findtext("titre") or DEFAULT_COURSE_TITLE).strip()
+                publication_date_str = (r.findtext("datePublication") or "").strip()
+                average_note_str = (r.findtext("noteMoyenne") or "").strip()
+
+                if False in (
+                    is_course_code_valid(course_code_str),
+                    is_average_note_valid(average_note_str),
+                    is_date_valid(publication_date_str),
+                ):
+                    continue
 
                 summaries.append(
                     {
                         "author": author,
-                        "course_code": course_code,
-                        "title": title,
-                        "description": "Aucune description",  # Static because not provided in XML
-                        "publication_date": publication_date
-                        if publication_date
-                        else None,
-                        "average_rating": float(average_note)
-                        if average_note.replace(".", "", 1).isdigit()
-                        else average_note,
+                        "course_code": course_code_str,
+                        "title": title_str,
+                        "description": DEFAULT_SUMMARY_DESCRIPTION,  # Static because not provided in XML
+                        "publication_date": publication_date_str,
+                        "average_rating": float(average_note_str),
                     }
                 )
 

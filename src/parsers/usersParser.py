@@ -1,4 +1,11 @@
 from defusedxml import ElementTree as ET  # defusedxmlis a safe XML parser
+from utils.validators import (
+    is_created_username_valid,
+    is_email_valid,
+    is_date_valid,
+    is_level_valid,
+    is_positive_int,
+)
 
 
 class UsersParser:
@@ -14,31 +21,35 @@ class UsersParser:
         tree = ET.parse(self.xml_path)
         root = tree.getroot()
         users = []
+        verify_user_uniqueness = set()
 
         for u in root.findall("utilisateur"):
-            username = (
-                u.findtext("nomUtilisateur") or "Nom d'utilisateur inconnu"
-            ).strip()
-            email = (u.findtext("email") or "Email inconnu").strip()
-            registration_date = (
-                u.findtext("dateInscription") or "Date d'inscription inconnue"
-            ).strip()
-            profile_level = int(
-                u.findtext("niveau") or 1
-            )  # Default to level 1 if not provided
-            profile_points = int(
-                u.findtext("points") or 0
-            )  # Default to 0 points if not provided
+            if u not in verify_user_uniqueness:
+                username = (u.findtext("nomUtilisateur") or "").strip()
+                email = (u.findtext("email") or "").strip()
+                registration_date = (u.findtext("dateInscription") or "").strip()
+                profile_level_str = (u.findtext("niveauProfil") or "").strip()
+                profile_points_str = (u.findtext("pointsProfil") or "").strip()
 
-            users.append(
-                {
-                    "username": username,
-                    "email": email,
-                    "registration_date": registration_date,
-                    "profile_level": profile_level,
-                    "profile_points": profile_points,
-                }
-            )
+                if False in (
+                    is_created_username_valid(username),
+                    is_email_valid(email),
+                    is_date_valid(registration_date),
+                    is_level_valid(profile_level_str),
+                    is_positive_int(profile_points_str),
+                ):
+                    continue
+
+                users.append(
+                    {
+                        "username": username,
+                        "email": email,
+                        "registration_date": registration_date,
+                        "profile_level": int(profile_level_str),
+                        "profile_points": int(profile_points_str),
+                    }
+                )
+                verify_user_uniqueness.add(u)
         return users
 
     def get_users(self):

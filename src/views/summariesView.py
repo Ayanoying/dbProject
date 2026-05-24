@@ -121,6 +121,10 @@ class SummariesView(QWidget):
         if not ok3:
             return
         result = self.service.publish(username, course_name.strip(), title, desc)
+        if result == "invalid_course_code":
+            QMessageBox.warning(
+                self, "Erreur", "Code de cours invalide. Exemple correct : INFOH303."
+            )
         if result == "invalid_fields":
             QMessageBox.warning(
                 self, "Erreur", "Le titre et la description ne peuvent pas être vides."

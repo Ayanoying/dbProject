@@ -4,6 +4,8 @@ from repositories.coursesRepository import CoursesRepository
 from repositories.pointsRepository import PointsRepository
 from repositories.evaluationsRepository import EvaluationsRepository
 
+from utils.validators import is_course_code_valid
+
 
 class SummariesService:
     """Business logic for summaries and evaluations."""
@@ -24,6 +26,9 @@ class SummariesService:
         title = (title or "").strip()
         description = (description or "").strip()
         course_code = (course_code or "").strip()
+
+        if not is_course_code_valid(course_code):
+            return "invalid_course_code"
 
         if not title or not description:
             return "invalid_fields"

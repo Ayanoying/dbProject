@@ -32,6 +32,7 @@ CREATE TABLE academic_years (
     id_academic_year TEXT PRIMARY KEY CHECK (id_academic_year ~ '^[0-9]{4}-[0-9]{4}$')
 );
 
+
 INSERT INTO academic_years (id_academic_year)
 VALUES ('2025-2026')
 ON CONFLICT DO NOTHING;
@@ -121,3 +122,4 @@ CREATE INDEX idx_summaries_visible_course_date
 
 CREATE INDEX idx_evaluations_summary ON evaluations(summary_id);
 CREATE INDEX idx_transactions_user_date ON transactions(user_id, transaction_date DESC);
+    

@@ -1,8 +1,8 @@
 import csv
-from utils.validators import is_in_faculty_set
+from utils.validators import is_faculty_valid, is_credits_valid, is_course_code_valid
 
-
-DEFAULT_CREDITS = 5
+DEFAULT_ACADEMIC_YEAR = "2025-2026"
+DEFAULT_COURSE_TITLE = "Titre de cours inconnu"
 
 
 class CoursesParser:
@@ -20,20 +20,25 @@ class CoursesParser:
         with open(self.file_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                course_code = (row.get("code_cours") or "Code inconnu").strip()
-                course_title = (row.get("nom") or "Nom inconnu").strip()
-                faculty = (row.get("faculte") or "Faculté inconnue").strip()
-                credits_text = (row.get("credits") or "Credits inconnus").strip()
-                credits = int(credits_text) if credits_text else DEFAULT_CREDITS
+                course_code_str = (row.get("code") or "").strip()
+                course_title_str = (row.get("nom") or DEFAULT_COURSE_TITLE).strip()
+                faculty_str = (row.get("faculte") or "").strip()
+                credits_str = (row.get("credits") or "").strip()
+
+                if False in (
+                    is_faculty_valid(faculty_str),
+                    is_credits_valid(credits_str),
+                    is_course_code_valid(course_code_str),
+                ):
+                    continue
+
                 courses.append(
                     {
-                        "course_code": course_code,
-                        "course_title": course_title,
-                        "faculty": faculty
-                        if is_in_faculty_set(faculty)
-                        else "Inconnue",
-                        "credits": credits,
-                        "academic_year_id": "2025-2026",  # Static value because not provided in CSV
+                        "course_code": course_code_str,
+                        "course_title": course_title_str,
+                        "faculty": faculty_str,
+                        "credits": int(credits_str),
+                        "academic_year_id": DEFAULT_ACADEMIC_YEAR,  # Static value because not provided in CSV
                     }
                 )
         return courses
