@@ -205,3 +205,23 @@ class SummariesRepository:
         finally:
             cursor.close()
             connection.close()
+
+    def additional_request_4(self):
+        """Return the best average summaries note for each course."""
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            SELECT s1.id_summary, s1.title, s1.course_id, s1.average_rating
+            FROM summaries s1
+            WHERE s1.average_rating = (
+                SELECT MAX(s2.average_rating)
+                FROM summaries s2
+                WHERE s2.course_id = s1.course_id
+            );
+            """
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return rows

@@ -81,3 +81,21 @@ class CoursesRepository:
         cursor.close()
         connection.close()
         return result is not None
+    
+    def additional_request_2(self):
+        """Return users who have published summaries for at least 3 different courses."""
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            SELECT u.id_user, u.username
+            FROM users u
+            JOIN summaries s ON u.id_user = s.user_id
+            GROUP BY u.id_user, u.username
+            HAVING COUNT(DISTINCT s.course_id) >= 3;
+            """
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return rows
