@@ -71,20 +71,21 @@ CREATE TABLE evaluations (
 CREATE TABLE transactions (
     id_transaction SERIAL PRIMARY KEY,
     amount INT NOT NULL,
-    transaction_type TEXT NOT NULL CHECK (transaction_type IN ('gain_evaluation', 'gain_summary', 'purchase_item')),
+    transaction_type TEXT NOT NULL CHECK (transaction_type IN ('gain_evaluation', 'gain_summary', 'purchase_item', 'code_points')),
     transaction_date DATE NOT NULL DEFAULT CURRENT_DATE CHECK (transaction_date <= CURRENT_DATE),
     user_id INT NOT NULL REFERENCES users(id_user),
     summary_id INT REFERENCES summaries(id_summary),
     evaluation_id INT REFERENCES evaluations(id_evaluation),
     item_id INT REFERENCES cosmetic_items(id_item),
     CONSTRAINT chk_transaction_amount_sign CHECK (
-        (transaction_type IN ('gain_evaluation', 'gain_summary') AND amount > 0)
+        (transaction_type IN ('gain_evaluation', 'gain_summary', 'code_points') AND amount > 0)
         OR (transaction_type = 'purchase_item' AND amount < 0)
     ),
     CONSTRAINT chk_transaction_origin CHECK (
         (transaction_type = 'gain_evaluation' AND evaluation_id IS NOT NULL)
         OR (transaction_type = 'gain_summary' AND summary_id IS NOT NULL)
         OR (transaction_type = 'purchase_item' AND item_id IS NOT NULL)
+        OR (transaction_type = 'code_points' AND summary_id IS NULL AND evaluation_id IS NULL AND item_id IS NULL)
     )
 );
 

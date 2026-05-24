@@ -29,6 +29,7 @@ source .venv/bin/activate
 pip install psycopg2
 pip install pandas
 pip install PyQt6
+pip install defusedxml
 ```
 
 > Note: commandes à taper à la racine du projet
