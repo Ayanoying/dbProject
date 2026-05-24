@@ -64,3 +64,23 @@ class LeaderboardRepository:
         cursor.close()
         connection.close()
         return rows
+    
+    def get_users_who_spent_more_points_than_they_have(self):
+        """Return users who spent more points than they currently have (Query 7) """
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            SELECT u.id_user, u.username, u.profile_points, SUM(ABS(t.amount)) AS total_spent
+            FROM users u
+            JOIN transactions t ON u.id_user = t.user_id
+            WHERE t.transaction_type = 'purchase_item'
+            GROUP BY u.id_user, u.username, u.profile_points
+            HAVING SUM(ABS(t.amount)) > u.profile_points;
+            """
+        )
+        users = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return users       

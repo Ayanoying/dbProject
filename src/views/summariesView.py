@@ -1,4 +1,7 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QMessageBox, QInputDialog
+from PyQt6.QtWidgets import (
+QWidget, QVBoxLayout, QPushButton, QMessageBox, QDialog,
+QInputDialog, QTableWidgetItem,QTableWidget, QVBoxLayout,
+)
 
 from services.summariesService import SummariesService
 from session import Session
@@ -19,6 +22,8 @@ class SummariesView(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
         self.btn_list = QPushButton("Voir les résumés d'un cours")
+        self.btn_request_4 = QPushButton("Meilleur résumé par cours (requête 4)")
+        self.btn_request_8 = QPushButton("Nombre moyen de résumé par utilisateur (requête 8)")
         self.btn_evaluate = QPushButton("Noter un résumé")
         self.btn_list_mines = QPushButton("Voir mes résumés")
         self.btn_publish = QPushButton("Publier un résumé")
@@ -26,6 +31,8 @@ class SummariesView(QWidget):
         self.btn_delete = QPushButton("Supprimer un résumé")
         self.btn_back = QPushButton("Retour")
         self.btn_list.clicked.connect(self.view_list)
+        self.btn_request_4.clicked.connect(self.view_request4)
+        self.btn_request_8.clicked.connect(self.view_request8)
         self.btn_evaluate.clicked.connect(self.view_evaluate)
         self.btn_list_mines.clicked.connect(self.view_own_summaries)
         self.btn_publish.clicked.connect(self.view_publish)
@@ -34,11 +41,13 @@ class SummariesView(QWidget):
         if self.main_window is not None:
             self.btn_back.clicked.connect(self.main_window.go_home)
         layout.addWidget(self.btn_list)
+        layout.addWidget(self.btn_request_4)
         layout.addWidget(self.btn_evaluate)
         layout.addWidget(self.btn_list_mines)
         layout.addWidget(self.btn_publish)
         layout.addWidget(self.btn_edit)
         layout.addWidget(self.btn_delete)
+        layout.addWidget(self.btn_request_8)
         layout.addWidget(self.btn_back)
         self.setLayout(layout)
 
@@ -169,3 +178,44 @@ class SummariesView(QWidget):
             QMessageBox.information(self, "OK", "Résumé supprimé.")
         else:
             QMessageBox.warning(self, "Erreur", "Suppression impossible.")
+
+    def view_request4(self):
+        results = self.service.request4()
+
+        if not results:
+            QMessageBox.information(self, "Meilleur résumé par cours", "Aucun résultat.")
+            return
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Meilleur résumé par cours")
+        dialog.resize(800, 400)
+
+        layout = QVBoxLayout(dialog)
+
+        table = QTableWidget()
+        table.setColumnCount(4)
+        table.setHorizontalHeaderLabels([
+            "ID Résumé", "Titre", "ID Cours", "Note moyenne"
+        ])
+        table.setRowCount(len(results))
+
+        for row_index, row_data in enumerate(results):
+            for col_index, value in enumerate(row_data):
+                table.setItem(row_index, col_index, QTableWidgetItem(str(value)))
+
+        table.resizeColumnsToContents()
+
+        btn_close = QPushButton("Fermer")
+        btn_close.clicked.connect(dialog.accept)
+
+        layout.addWidget(table)
+        layout.addWidget(btn_close)
+
+        dialog.exec()
+
+    def view_request8(self):
+        number = self.service.request8()
+        text = (
+        f"Nombre moyen  : {number[0]}\n"
+    )
+        QMessageBox.information(self, "Nombre moyen de résumés par utilisateurs (requête 8)", text)

@@ -229,3 +229,23 @@ class ShopRepository:
         cursor.close()
         connection.close()
         return result
+
+    def additional_request_6(self):
+        """Return the most purchased item"""
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            SELECT c.id_item, c.name, COUNT(*) AS purchases_count
+            FROM cosmetic_items c
+            JOIN transactions t ON c.id_item = t.item_id
+            WHERE t.transaction_type = 'purchase_item'
+            GROUP BY c.id_item, c.name
+            ORDER BY purchases_count DESC
+            LIMIT 1;
+            """
+        )
+        course = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return course

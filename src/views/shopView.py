@@ -42,11 +42,13 @@ class ShopView(QWidget):
         self.btn_refresh = QPushButton("Rafraîchir")
         self.btn_buy = QPushButton("Acheter")
         self.btn_activate = QPushButton("Activer")
+        self.btn_request6 = QPushButton("Voir l'objet le plus acheté (requête 6)")
         self.btn_back = QPushButton("Retour")
 
         self.btn_refresh.clicked.connect(self.refresh_all)
         self.btn_buy.clicked.connect(self.buy_item)
         self.btn_activate.clicked.connect(self.activate_item)
+        self.btn_request6.clicked.connect(self.view_request6)
         if self.main_window is not None:
             self.btn_back.clicked.connect(self.main_window.go_home)
 
@@ -58,6 +60,7 @@ class ShopView(QWidget):
         layout.addWidget(self.btn_refresh)
         layout.addWidget(self.btn_buy)
         layout.addWidget(self.btn_activate)
+        layout.addWidget(self.btn_request6)
         layout.addWidget(self.btn_back)
 
         self.setLayout(layout)
@@ -137,3 +140,13 @@ class ShopView(QWidget):
             self.refresh_all()
         else:
             QMessageBox.warning(self, "Boutique", "Activation impossible.")
+    
+    def view_request6(self):
+        items = self.service.request6()
+        item = items[0]
+        text = (
+        f"ID objet : {item[0]}\n"
+        f"Nom : {item[1]}\n"
+        f"Nombre d'achat : {item[2]}"
+    )
+        QMessageBox.information(self, "Objet le plus acheté (requête 6)", text)

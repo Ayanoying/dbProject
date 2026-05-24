@@ -37,7 +37,8 @@ WHERE s.id_summary IS NULL;
 -- Request 6 : most purchased cosmetic item
 SELECT c.id_item, c.name, COUNT(*) AS purchases_count
 FROM cosmetic_items c
-JOIN inventory_items i ON c.id_item = i.id_item
+JOIN transactions t ON c.id_item = t.item_id
+WHERE t.transaction_type = 'purchase_item'
 GROUP BY c.id_item, c.name
 ORDER BY purchases_count DESC
 LIMIT 1;

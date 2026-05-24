@@ -35,3 +35,7 @@ class CoursesService:
         if not inserted:
             return "already_exists"
         return inserted
+    
+    def request3(self):
+        course = self.repo.additional_request_3()
+        return course

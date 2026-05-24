@@ -212,16 +212,36 @@ class SummariesRepository:
         cursor = connection.cursor()
         cursor.execute(
             """
-            SELECT s1.id_summary, s1.title, s1.course_id, s1.average_rating
+            SELECT s1.id_summary, s1.title, s1.course_id, s1.average_rating 
             FROM summaries s1
             WHERE s1.average_rating = (
                 SELECT MAX(s2.average_rating)
                 FROM summaries s2
                 WHERE s2.course_id = s1.course_id
-            );
+            )
+            ORDER BY s1.course_id ASC;
             """
         )
         rows = cursor.fetchall()
         cursor.close()
         connection.close()
         return rows
+
+    def additional_request_8(self):
+        """Return the average number of summaries published per user."""
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            SELECT AVG(nb_summaries) AS average_summaries
+            FROM (
+                SELECT COUNT(*) AS nb_summaries
+                FROM summaries
+                GROUP BY user_id
+            ) AS stats;
+            """
+        )
+        number = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        return number

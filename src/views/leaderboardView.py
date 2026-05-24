@@ -55,6 +55,10 @@ class LeaderboardView(QWidget):
         self.inactive_tab = self._build_inactive_tab()
         self.tabs.addTab(self.inactive_tab, "Utilisateurs sans Résumé")
 
+        # Tab 4 => Users who have spent more points than they currently have
+        self.spenders_tab = self._build_spenders_tab()
+        self.tabs.addTab(self.spenders_tab, "Utilisateurs Dépensiers")
+
         # Refresh button 
         btn_layout = QHBoxLayout()
         refresh_btn = QPushButton("Actualiser")
@@ -166,6 +170,35 @@ class LeaderboardView(QWidget):
         )
         layout.addWidget(self.inactive_table)
         return widget
+    
+    def _build_spenders_tab(self):
+        """Create the tab showing users who have spent more points than they currently have """
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+
+        description = QLabel(
+            "Utilisateurs ayant dépensés plus de points que ce qu'ils n'ont actuellement (requête 7) "
+        )
+        description.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(description)
+
+        # Table: username - points
+        self.spenders_table = QTableWidget()
+        self.spenders_table.setColumnCount(3)
+        self.spenders_table.setHorizontalHeaderLabels(
+            ["Nom d'utilisateur", "Points", "Points dépensés"]
+        )
+        self.spenders_table.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeMode.Stretch
+        )
+        self.spenders_table.setEditTriggers(
+            QTableWidget.EditTrigger.NoEditTriggers
+        )
+        self.spenders_table.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows
+        )
+        layout.addWidget(self.spenders_table)
+        return widget
 
 
     #  Data loading                                                       
@@ -175,6 +208,7 @@ class LeaderboardView(QWidget):
             self._load_top_users()
             self._load_contributors()
             self._load_inactive_users()
+            self._load_spendings_users()
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Impossible de charger le leaderboard :\n{e}")
 
@@ -225,3 +259,19 @@ class LeaderboardView(QWidget):
 
             self.inactive_table.setItem(row_idx, 0, username_item)
             self.inactive_table.setItem(row_idx, 1, points_item)
+    
+    def _load_spendings_users(self):
+        """Fetch and display users who have spent more points than they currently have """
+        users = self.service.get_spending_users()
+        self.spenders_table.setRowCount(len(users))
+
+        for row_idx, (user_id, username, points, points_spents) in enumerate(users):
+            username_item = QTableWidgetItem(username)
+            points_item = QTableWidgetItem(str(points))
+            points_spents_item = QTableWidgetItem(str(points_spents))
+            points_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            points_spents_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+
+            self.spenders_table.setItem(row_idx, 0, username_item)
+            self.spenders_table.setItem(row_idx, 1, points_item)
+            self.spenders_table.setItem(row_idx, 2, points_spents_item)

@@ -49,9 +49,9 @@ class HomePage(QWidget):
         layout.addWidget(btn_courses)
         layout.addWidget(btn_summaries)
         layout.addWidget(btn_shop)
+        layout.addWidget(btn_leaderboard)
         layout.addWidget(btn_queries)
         layout.addWidget(btn_triche)
-        layout.addWidget(btn_leaderboard)
         layout.addWidget(btn_logout)
 
 
@@ -81,8 +81,9 @@ class MainView(QMainWindow):
         self.stack.addWidget(self.users_page)
         self.stack.addWidget(self.courses_page)
         self.stack.addWidget(self.summaries_page)
-        self.stack.addWidget(self.shop_page)
         self.stack.addWidget(self.leaderboard_page)
+        self.stack.addWidget(self.shop_page)
+
 
         self.stack.setCurrentWidget(self.home_page)
 

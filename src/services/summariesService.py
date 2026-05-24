@@ -99,3 +99,11 @@ class SummariesService:
             "gain_evaluation", +10, summary_author_id, summary_id, evaluation_id
         )
         return evaluation_id
+
+    def request4(self):
+        req_4 = self.repo.additional_request_4()
+        return req_4
+    
+    def request8(self):
+        req_8 = self.repo.additional_request_8()
+        return req_8

@@ -18,3 +18,7 @@ class LeaderboardService:
     def get_inactive_users(self):
         """Return users who never published any summary """
         return self.repo.get_users_without_summaries()
+
+    def get_spending_users(self):
+        """Return users who spent more points than they currently have """
+        return self.repo.get_users_who_spent_more_points_than_they_have()

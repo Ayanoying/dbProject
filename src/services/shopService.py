@@ -54,3 +54,7 @@ class ShopService:
         if user_id is None:
             return None
         return self.repo.get_active_item(user_id, item_type)
+    
+    def request6(self):
+        req_6 = self.repo.additional_request_6()
+        return req_6

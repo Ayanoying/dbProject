@@ -28,13 +28,16 @@ class CoursesView(QWidget):
         layout = QVBoxLayout()
         self.btn_list = QPushButton("Voir la liste des cours")
         self.btn_add = QPushButton("Ajouter un cours")
+        self.btn_request3 = QPushButton("Voir le cours avec le plus de résumés (requête 3)")
         self.btn_back = QPushButton("Retour")
         self.btn_list.clicked.connect(self.view_list)
         self.btn_add.clicked.connect(self.view_add)
+        self.btn_request3.clicked.connect(self.view_request3)
         if self.main_window is not None:
             self.btn_back.clicked.connect(self.main_window.go_home)
         layout.addWidget(self.btn_list)
         layout.addWidget(self.btn_add)
+        layout.addWidget(self.btn_request3)
         layout.addWidget(self.btn_back)
         self.setLayout(layout)
 
@@ -115,3 +118,13 @@ class CoursesView(QWidget):
             QMessageBox.warning(
                 self, "Erreur", "Cours déjà existant ou données invalides"
             )
+
+    def view_request3(self):
+        courses = self.service.request3()
+        course = courses[0]
+        text = (
+        f"ID cours : {course[0]}\n"
+        f"Titre : {course[1]}\n"
+        f"Nombre de résumés : {course[2]}"
+    )
+        QMessageBox.information(self, "Cours avec le plus de résumés (requête 3)", text)
