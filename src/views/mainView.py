@@ -10,6 +10,7 @@ from views.usersView import UsersView
 from views.coursesView import CoursesView
 from views.summariesView import SummariesView
 from views.shopView import ShopView
+from views.leaderboardView import LeaderboardView
 from session import Session
 
 
@@ -22,18 +23,21 @@ class HomePage(QWidget):
         btn_courses = QPushButton("Cours")
         btn_summaries = QPushButton("Résumés")
         btn_shop = QPushButton("Boutique")
+        btn_leaderboard = QPushButton("Leaderboard")  # leaderboard button
         btn_logout = QPushButton("Se déconnecter")
 
         btn_users.clicked.connect(parent_main.open_users)
         btn_courses.clicked.connect(parent_main.open_courses)
         btn_summaries.clicked.connect(parent_main.open_summaries)
         btn_shop.clicked.connect(parent_main.open_shop)
+        btn_leaderboard.clicked.connect(parent_main.open_leaderboard)  # Connect to handler
         btn_logout.clicked.connect(parent_main.logout)
 
         layout.addWidget(btn_users)
         layout.addWidget(btn_courses)
         layout.addWidget(btn_summaries)
         layout.addWidget(btn_shop)
+        layout.addWidget(btn_leaderboard)  # Add button to layout
         layout.addWidget(btn_logout)
 
 
@@ -52,12 +56,14 @@ class MainView(QMainWindow):
         self.courses_page = CoursesView(self)
         self.summaries_page = SummariesView(self)
         self.shop_page = ShopView(self)
+        self.leaderboard_page = LeaderboardView(self)  # Instantiate the leaderboard page
 
         self.stack.addWidget(self.home_page)
         self.stack.addWidget(self.users_page)
         self.stack.addWidget(self.courses_page)
         self.stack.addWidget(self.summaries_page)
         self.stack.addWidget(self.shop_page)
+        self.stack.addWidget(self.leaderboard_page)  # Register it in the stack
 
         self.stack.setCurrentWidget(self.home_page)
 
@@ -72,6 +78,11 @@ class MainView(QMainWindow):
 
     def open_shop(self):
         self.stack.setCurrentWidget(self.shop_page)
+
+    def open_leaderboard(self):
+        # Refresh data each time the leaderboard is opened
+        self.leaderboard_page.refresh()
+        self.stack.setCurrentWidget(self.leaderboard_page)
 
     def go_home(self):
         self.stack.setCurrentWidget(self.home_page)

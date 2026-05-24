@@ -5,7 +5,7 @@ from session import Session
 
 
 class UsersView(QWidget):
-    """User profile and points history page."""
+    """User profile and points history page """
 
     def __init__(self, main_window=None):
         super().__init__()
