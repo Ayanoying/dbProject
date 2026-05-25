@@ -75,7 +75,7 @@ class ShopView(QWidget):
             self.items_text.setPlainText("Aucun objet disponible.")
             return
 
-        header = "ID | NOM | TYPE | DESCRIPTION | POINTS"
+        header = "ID | Nom | Type | Description | Points"
         rows = "\n".join(
             f"{item[0]} | {item[1]} | {item[2]} | {item[3]} | {item[4]}"
             for item in items
@@ -140,13 +140,9 @@ class ShopView(QWidget):
             self.refresh_all()
         else:
             QMessageBox.warning(self, "Boutique", "Activation impossible.")
-    
+
     def view_request6(self):
         items = self.service.request6()
         item = items[0]
-        text = (
-        f"ID objet : {item[0]}\n"
-        f"Nom : {item[1]}\n"
-        f"Nombre d'achat : {item[2]}"
-    )
+        text = f"ID objet : {item[0]}\nNom : {item[1]}\nNombre d'achat : {item[2]}"
         QMessageBox.information(self, "Objet le plus acheté (requête 6)", text)

@@ -91,7 +91,7 @@ CREATE TABLE transactions (
 
 CREATE TABLE rankings (
     id_ranking SERIAL PRIMARY KEY,
-    ranking_name TEXT NOT NULL UNIQUE CHECK (ranking_name ~ '^[0-9]{4}_[0-9]{4}$')
+    ranking_name TEXT NOT NULL UNIQUE CHECK (ranking_name ~ '^[0-9]{4}-[0-9]{4}$')
 );
 
 -- Junction table user - ranking

@@ -30,31 +30,31 @@ class ShopService:
     def list_inventory(self):
         """Return the authenticated user's inventory."""
         user_id = self._current_user_id()
-        if user_id is None:
+        if not user_id:
             return None
         return self.repo.get_user_inventory(user_id)
 
     def buy_item(self, item_id):
         """Purchase one item for the authenticated user."""
         user_id = self._current_user_id()
-        if user_id is None:
+        if not user_id:
             return False
         return self.repo.purchase_item(user_id, item_id, self.points_repo)
 
     def activate_item(self, item_id):
         """Activate one owned item for the authenticated user."""
         user_id = self._current_user_id()
-        if user_id is None:
+        if not user_id:
             return False
         return self.repo.activate_item(user_id, item_id)
 
     def get_active_item(self, item_type):
         """Return active item by type for the authenticated user."""
         user_id = self._current_user_id()
-        if user_id is None:
+        if not user_id:
             return None
         return self.repo.get_active_item(user_id, item_type)
-    
+
     def request6(self):
         req_6 = self.repo.additional_request_6()
         return req_6

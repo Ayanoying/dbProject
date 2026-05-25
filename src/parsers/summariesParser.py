@@ -18,7 +18,7 @@ class SummariesParser:
         """Return parsed summaries as dictionaries."""
         tree = ET.parse(self.xml_path)
         root = tree.getroot()
-        if root is None:
+        if not root:
             return []
         summaries = []
 

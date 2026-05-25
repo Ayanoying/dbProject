@@ -10,6 +10,7 @@ from repositories.evaluationsRepository import EvaluationsRepository
 from repositories.usersRepository import UsersRepository
 from repositories.summariesRepository import SummariesRepository
 from repositories.shopRepository import ShopRepository
+from repositories.leaderboardRepository import LeaderboardRepository
 
 
 BASE_DATA = os.path.join(os.path.dirname(__file__), "..", "res", "data")
@@ -34,9 +35,12 @@ def init_data():
     summaries_repo = SummariesRepository()
     evaluations_repo = EvaluationsRepository()
     shop_repo = ShopRepository()
+    leaderboard_repo = LeaderboardRepository()
 
     courses_repo.save_many(courses_parser.get_courses())
     users_repo.save_many(users_parser.get_users())
     summaries_repo.save_many(summaries_parser.get_summaries())
     evaluations_repo.save_many(evaluations_parser.get_evaluations())
     shop_repo.save_many(shop_parser.get_items())
+    leaderboard_repo.initialize_rankings()
+    leaderboard_repo.initialize_ranking_history()

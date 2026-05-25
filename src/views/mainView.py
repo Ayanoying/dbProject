@@ -14,7 +14,7 @@ from views.coursesView import CoursesView
 from views.summariesView import SummariesView
 from views.shopView import ShopView
 from views.leaderboardView import LeaderboardView
-from views.queriesView import QueriesView
+from views.specialQueriesView import SpecialQueriesView
 from session import Session
 
 
@@ -31,7 +31,7 @@ class HomePage(QWidget):
         btn_courses = QPushButton("Cours")
         btn_summaries = QPushButton("Résumés")
         btn_shop = QPushButton("Boutique")
-        btn_queries = QPushButton("Centre des Requêtes")
+        btn_queries = QPushButton("Centre des requêtes")
         btn_triche = QPushButton("Entrer un code de points")
         btn_leaderboard = QPushButton("Classement")
         btn_logout = QPushButton("Se déconnecter")
@@ -73,7 +73,7 @@ class MainView(QMainWindow):
         self.courses_page = CoursesView(self)
         self.summaries_page = SummariesView(self)
         self.shop_page = ShopView(self)
-        self.queries_page = QueriesView(self)
+        self.queries_page = SpecialQueriesView(self)
         self.leaderboard_page = LeaderboardView(self)
 
         self.stack.addWidget(self.queries_page)
@@ -83,7 +83,6 @@ class MainView(QMainWindow):
         self.stack.addWidget(self.summaries_page)
         self.stack.addWidget(self.leaderboard_page)
         self.stack.addWidget(self.shop_page)
-
 
         self.stack.setCurrentWidget(self.home_page)
 
@@ -98,7 +97,7 @@ class MainView(QMainWindow):
 
     def open_shop(self):
         self.stack.setCurrentWidget(self.shop_page)
-    
+
     def open_leaderboard(self):
         self.stack.setCurrentWidget(self.leaderboard_page)
 
@@ -111,16 +110,13 @@ class MainView(QMainWindow):
             return
 
         code, ok = QInputDialog.getText(
-            self,
-            "Code requis",
-            "Entrez le code secret :",
-            QLineEdit.EchoMode.Password
+            self, "Code requis", "Entrez le code secret :", QLineEdit.EchoMode.Password
         )
 
         if not ok:
             return
 
-        if code not in ("joseph","david","cedric","imane"):
+        if code not in ("joseph", "david", "cedric", "imane"):
             QMessageBox.warning(self, "Erreur", "Code incorrect.")
             return
 

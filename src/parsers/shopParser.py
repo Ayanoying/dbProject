@@ -1,5 +1,5 @@
 from defusedxml import ElementTree as ET
-from utils.validators import is_item_type_valid, is_item_id_valid, is_positive_int
+from utils.validators import is_item_type_valid, is_positive_int
 
 
 DEFAULT_DESCRIPTION = "Description inconnue"
@@ -20,7 +20,7 @@ class ShopParser:
         root = tree.getroot()
         items = []
 
-        if root is None:
+        if not root:
             return items
 
         for item in root.findall("objet"):
@@ -34,7 +34,7 @@ class ShopParser:
 
             if False in (
                 is_item_type_valid(item_type_str),
-                is_item_id_valid(item_id_str),
+                is_positive_int(item_id_str),
                 is_positive_int(item_price_str),
             ):
                 continue
