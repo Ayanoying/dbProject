@@ -27,7 +27,6 @@ Dans le cadre de ce projet, la sécurité n'est pas une priorité, il s'agit d'u
 python3 -m venv .venv
 source .venv/bin/activate
 pip install psycopg2
-pip install pandas
 pip install PyQt6
 pip install defusedxml
 ```
