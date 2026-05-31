@@ -27,6 +27,7 @@ WHERE s1.average_rating = (
     FROM summaries s2
     WHERE s2.course_id = s1.course_id
 );
+ORDER BY s1.course_id ASC;
 
 -- Request 5 : users who have not published any summary
 SELECT u.id_user, u.username
@@ -52,9 +53,10 @@ GROUP BY u.id_user, u.username, u.profile_points
 HAVING SUM(ABS(t.amount)) > u.profile_points;
 
 -- Request 8 : average number of summaries published per user
-SELECT AVG(nb_summaries) AS average_summaries
+SELECT AVG(summary_count)
 FROM (
-    SELECT COUNT(*) AS nb_summaries
-    FROM summaries
-    GROUP BY user_id
+    SELECT u.id_user, COUNT(s.id_summary) AS summary_count
+    FROM users u
+    LEFT JOIN summaries s ON u.id_user = s.user_id
+    GROUP BY u.id_user
 ) AS stats;

@@ -4,6 +4,8 @@ from views.connectionView import ConnectionView
 
 
 class App:
+    """Main application class that initializes the QApplication and the main window."""
+    
     def __init__(self):
         self.app = QApplication(sys.argv)
         self.window = ConnectionView()

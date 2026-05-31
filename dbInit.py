@@ -2,7 +2,7 @@ from pathlib import Path
 import sys
 
 
-# Permet l'importation des modules src avec conformité du chemin
+# Allows us to import from the src directory, which is where our dbInitialisation module is located
 PROJECT_ROOT = Path(__file__).resolve().parent
 SRC_DIR = PROJECT_ROOT / "src"
 

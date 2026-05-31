@@ -11,6 +11,8 @@ from services.specialQueriesService import SpecialQueriesService
 
 
 class SpecialQueriesView(QWidget):
+    """View for executing special queries and displaying results."""
+
     def __init__(self, main_window=None):
         super().__init__()
         self.main_window = main_window

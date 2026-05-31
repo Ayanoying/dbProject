@@ -23,6 +23,8 @@ from repositories.usersRepository import UsersRepository
 
 
 class HomePage(QWidget):
+    """Home page with navigation buttons to different sections of the app."""
+
     def __init__(self, parent_main):
         super().__init__()
         layout = QVBoxLayout(self)

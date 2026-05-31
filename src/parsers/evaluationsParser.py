@@ -2,6 +2,8 @@ import json
 
 
 class EvaluationsParser:
+    """Parse evaluations from a JSON file."""
+
     def __init__(self, file_path):
         self.file_path = file_path
         self.data = self._load()

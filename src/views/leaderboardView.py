@@ -43,19 +43,23 @@ class LeaderboardView(QWidget):
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs)
 
-        # Tab 1 => Top 10 users by points
+        # Tab 1 => Global leaderboard
+        self.global_tab = self._build_global_tab()
+        self.tabs.addTab(self.global_tab, "Classement Global")
+
+        # Tab 2 => Top 10 users by points
         self.top_users_tab = self._build_top_users_tab()
         self.tabs.addTab(self.top_users_tab, "Top 10 Utilisateurs")
 
-        # Tab 2 => Active contributors (>= 3 courses)
+        # Tab 3 => Active contributors (>= 3 courses)
         self.contributors_tab = self._build_contributors_tab()
         self.tabs.addTab(self.contributors_tab, "Contributeurs Actifs")
 
-        # Tab 3 => Users with no summaries
+        # Tab 4 => Users with no summaries
         self.inactive_tab = self._build_inactive_tab()
         self.tabs.addTab(self.inactive_tab, "Utilisateurs sans Résumé")
 
-        # Tab 4 => Users who have spent more points than they currently have
+        # Tab 5 => Users who have spent more points than they currently have
         self.spenders_tab = self._build_spenders_tab()
         self.tabs.addTab(self.spenders_tab, "Utilisateurs Dépensiers")
 
@@ -81,7 +85,29 @@ class LeaderboardView(QWidget):
         self.refresh()
 
   
-    #  Tab builders                       
+    # Tab builders   
+    def _build_global_tab(self):
+        """Create the tab showing the complete leaderboard"""
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        description = QLabel("Classement complet des utilisateurs par nombre de points")
+        description.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(description)
+        self.global_table = QTableWidget()
+        self.global_table.setColumnCount(4)
+        self.global_table.setHorizontalHeaderLabels(["#", "Nom d'utilisateur", "Niveau", "Points"])
+        self.global_table.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.ResizeMode.Stretch
+        )
+        self.global_table.setEditTriggers(
+            QTableWidget.EditTrigger.NoEditTriggers
+        )
+        self.global_table.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows
+        )
+        layout.addWidget(self.global_table)
+        return widget  
+                      
     def _build_top_users_tab(self):
         """Create the tab showing top 10 users by profile_points """
         widget = QWidget()
@@ -205,12 +231,31 @@ class LeaderboardView(QWidget):
     def refresh(self):
         """Reload all 3 tables from the database """
         try:
+            self._load_global_users()
             self._load_top_users()
             self._load_contributors()
             self._load_inactive_users()
             self._load_spendings_users()
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Impossible de charger le leaderboard :\n{e}")
+
+    def _load_global_users(self):
+        """Fetch and display all users ordered by points"""
+        rows = self.service.get_top_users(limit=None)
+        self.global_table.setRowCount(len(rows))
+        for row_idx, (user_id, username, level, points) in enumerate(rows):
+            rank = row_idx + 1
+            rank_item = QTableWidgetItem(str(rank))
+            rank_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            username_item = QTableWidgetItem(username)
+            level_item = QTableWidgetItem(str(level))
+            level_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            points_item = QTableWidgetItem(str(points))
+            points_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.global_table.setItem(row_idx, 0, rank_item)
+            self.global_table.setItem(row_idx, 1, username_item)
+            self.global_table.setItem(row_idx, 2, level_item)
+            self.global_table.setItem(row_idx, 3, points_item)
 
     def _load_top_users(self):
         """Fetch and display top 10 users by points """

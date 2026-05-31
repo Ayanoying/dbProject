@@ -1,4 +1,6 @@
 class Session:
+    """A simple session management class to handle user authentication."""
+
     user = None
 
     @classmethod
