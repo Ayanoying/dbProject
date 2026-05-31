@@ -14,6 +14,7 @@ from dbInitialisation import init_data
 
 def main():
     init_data()
+    print("Données initiales chargées avec succès !")
 
 
 if __name__ == "__main__":
