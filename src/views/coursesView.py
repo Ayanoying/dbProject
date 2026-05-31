@@ -28,7 +28,9 @@ class CoursesView(QWidget):
         layout = QVBoxLayout()
         self.btn_list = QPushButton("Voir la liste des cours")
         self.btn_add = QPushButton("Ajouter un cours")
-        self.btn_request3 = QPushButton("Voir le cours avec le plus de résumés (requête 3)")
+        self.btn_request3 = QPushButton(
+            "Voir le cours avec le plus de résumés (requête 3)"
+        )
         self.btn_back = QPushButton("Retour")
         self.btn_list.clicked.connect(self.view_list)
         self.btn_add.clicked.connect(self.view_add)
@@ -123,8 +125,8 @@ class CoursesView(QWidget):
         courses = self.service.request3()
         course = courses[0]
         text = (
-        f"ID cours : {course[0]}\n"
-        f"Titre : {course[1]}\n"
-        f"Nombre de résumés : {course[2]}"
-    )
+            f"ID cours : {course[0]}\n"
+            f"Titre : {course[1]}\n"
+            f"Nombre de résumés : {course[2]}"
+        )
         QMessageBox.information(self, "Cours avec le plus de résumés (requête 3)", text)

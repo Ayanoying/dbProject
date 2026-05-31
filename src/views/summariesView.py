@@ -1,6 +1,13 @@
 from PyQt6.QtWidgets import (
-QWidget, QVBoxLayout, QPushButton, QMessageBox, QDialog,
-QInputDialog, QTableWidgetItem,QTableWidget, QVBoxLayout,
+    QWidget,
+    QVBoxLayout,
+    QPushButton,
+    QMessageBox,
+    QDialog,
+    QInputDialog,
+    QTableWidgetItem,
+    QTableWidget,
+    QVBoxLayout,
 )
 
 from services.summariesService import SummariesService
@@ -23,7 +30,9 @@ class SummariesView(QWidget):
         layout = QVBoxLayout()
         self.btn_list = QPushButton("Voir les résumés d'un cours")
         self.btn_request_4 = QPushButton("Meilleur résumé par cours (requête 4)")
-        self.btn_request_8 = QPushButton("Nombre moyen de résumé par utilisateur (requête 8)")
+        self.btn_request_8 = QPushButton(
+            "Nombre moyen de résumé par utilisateur (requête 8)"
+        )
         self.btn_evaluate = QPushButton("Noter un résumé")
         self.btn_list_mines = QPushButton("Voir mes résumés")
         self.btn_publish = QPushButton("Publier un résumé")
@@ -183,7 +192,9 @@ class SummariesView(QWidget):
         results = self.service.request4()
 
         if not results:
-            QMessageBox.information(self, "Meilleur résumé par cours", "Aucun résultat.")
+            QMessageBox.information(
+                self, "Meilleur résumé par cours", "Aucun résultat."
+            )
             return
 
         dialog = QDialog(self)
@@ -194,9 +205,9 @@ class SummariesView(QWidget):
 
         table = QTableWidget()
         table.setColumnCount(4)
-        table.setHorizontalHeaderLabels([
-            "ID Résumé", "Titre", "ID Cours", "Note moyenne"
-        ])
+        table.setHorizontalHeaderLabels(
+            ["ID Résumé", "Titre", "ID Cours", "Note moyenne"]
+        )
         table.setRowCount(len(results))
 
         for row_index, row_data in enumerate(results):
@@ -215,7 +226,7 @@ class SummariesView(QWidget):
 
     def view_request8(self):
         number = self.service.request8()
-        text = (
-        f"Nombre moyen  : {number[0]}\n"
-    )
-        QMessageBox.information(self, "Nombre moyen de résumés par utilisateurs (requête 8)", text)
+        text = f"Nombre moyen  : {number[0]}\n"
+        QMessageBox.information(
+            self, "Nombre moyen de résumés par utilisateurs (requête 8)", text
+        )

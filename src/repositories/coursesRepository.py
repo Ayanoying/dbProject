@@ -81,7 +81,7 @@ class CoursesRepository:
         cursor.close()
         connection.close()
         return result is not None
-    
+
     def additional_request_3(self):
         """Return course with most summaries"""
         connection = get_connection()

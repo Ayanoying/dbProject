@@ -23,68 +23,6 @@ class LeaderboardRepository:
         connection.close()
         return rows
 
-    def get_users_with_summaries_in_multiple_courses(self, min_courses=3):
-        """Return users who published summaries in at least min_courses different courses"""
-        connection = get_connection()
-        cursor = connection.cursor()
-        # Query 2 from the project spec: users with summaries in >= 3 different courses
-        cursor.execute(
-            """
-            SELECT u.username, COUNT(DISTINCT s.course_id) AS course_count
-            FROM users u
-            JOIN summaries s ON s.user_id = u.id_user
-            WHERE s.visible = TRUE
-            GROUP BY u.id_user, u.username
-            HAVING COUNT(DISTINCT s.course_id) >= %s
-            ORDER BY course_count DESC;
-            """,
-            (min_courses,),
-        )
-        rows = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return rows
-
-    def get_users_without_summaries(self):
-        """Return users who have never published a summary (Query 5 from spec)"""
-        connection = get_connection()
-        cursor = connection.cursor()
-        # Query 5: users with no published summary at all (visible or not)
-        cursor.execute(
-            """
-            SELECT u.id_user, u.username, u.profile_points
-            FROM users u
-            WHERE u.id_user NOT IN (
-                SELECT DISTINCT user_id FROM summaries
-            )
-            ORDER BY u.username;
-            """
-        )
-        rows = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return rows
-
-    def get_users_who_spent_more_points_than_they_have(self):
-        """Return users who spent more points than they currently have (Query 7)"""
-        connection = get_connection()
-        cursor = connection.cursor()
-
-        cursor.execute(
-            """
-            SELECT u.id_user, u.username, u.profile_points, SUM(ABS(t.amount)) AS total_spent
-            FROM users u
-            JOIN transactions t ON u.id_user = t.user_id
-            WHERE t.transaction_type = 'purchase_item'
-            GROUP BY u.id_user, u.username, u.profile_points
-            HAVING SUM(ABS(t.amount)) > u.profile_points;
-            """
-        )
-        users = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return users
-
     def initialize_rankings(self):
         """Initialize the rankings table based on academic years. Month or Week rankings could also be added"""
         connection = get_connection()

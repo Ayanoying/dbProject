@@ -8,7 +8,7 @@ FALL_BACK_DB_HOST = "localhost"
 FALL_BACK_DB_PASSWORD = "appuser123"
 FALL_BACK_DB_PORT = 5432
 
-
+# Load environment variables from .env file if it exists
 env_path = Path(__file__).parent.parent / ".env"
 if env_path.exists():
     with open(env_path) as f:

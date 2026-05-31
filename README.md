@@ -12,14 +12,14 @@ Dans le cadre de ce projet, la sécurité n'est pas une priorité, il s'agit d'u
 ## Structure du projet
 
 - `src/parsers/` : fichiers de parsing
-- `src/repositories/` : fichiers d'intégration des données parsées
-- `src/services/` : gestion de l'application en terminal
+- `src/repositories/` : fichiers de requêtes SQL
+- `src/services/` : fichiers de logique métier 
 - `src/views/` : gestion de l'interface graphique (PyQt6)
 - `res/data/` : fichiers données (CSV, JSON, XML)
-- `res/schema/` : fichiers des tables SQL
+- `res/schema/` : fichier des tables SQL (script de **création**)
 - `main.py` : point d'entrée de l'application
 - `dbConnection.py` : gestion de la connexion à la base de données
-- 
+- `dbInit.py` : script d'**initialisation** de la base de données 
 
 ## Création d'un environnement virtuel et Installation des dépendances
 
