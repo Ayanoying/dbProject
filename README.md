@@ -16,10 +16,11 @@ Dans le cadre de ce projet, la sécurité n'est pas une priorité, il s'agit d'u
 - `src/services/` : fichiers de logique métier 
 - `src/views/` : gestion de l'interface graphique (PyQt6)
 - `res/data/` : fichiers données (CSV, JSON, XML)
-- `res/schema/` : fichier des tables SQL (script de **création**)
+- `res/schema/` : fichier des tables SQL (SCRIPT de **création**)
+- `doc/AdditionalQueries.pdf` : document concernant les requêtes supplémentaires
 - `main.py` : point d'entrée de l'application
 - `dbConnection.py` : gestion de la connexion à la base de données
-- `dbInit.py` : script d'**initialisation** de la base de données 
+- `dbInit.py` : SCRIPT d'**initialisation** de la base de données 
 
 ## Création d'un environnement virtuel et Installation des dépendances
 
